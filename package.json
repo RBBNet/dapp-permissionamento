@@ -1,0 +1,116 @@
+{
+  "name": "permissioning-smart-contracts",
+  "repository": "permissioning-smart-contracts",
+  "license": "Apache-2.0",
+  "private": true,
+  "abirelease": "v1.0.1+ABIs",
+  "scripts": {
+    "lint:contracts": "yarn solium -d contracts",
+    "lint:app": "yarn prettier --check \"src/**/*.{js,jsx,ts,tsx,json,css}\"",
+    "lint:app:write": "yarn prettier --write \"src/**/*.{js,jsx,ts,tsx,json,css}\"",
+    "lint": "yarn run lint:contracts && yarn run lint:app",
+    "test:app": "yarn react-scripts test --env=jsdom --watchAll=false",
+    "test:app:watch": "yarn react-scripts test --env=jsdom",
+    "test:app:ci": "yarn react-scripts test --reporters=default --reporters=jest-junit",
+    "test": "yarn run test:app",
+    "build:app": "sh scripts/wrap_env.sh 'yarn react-scripts build'",
+    "build:contracts": "yarn typechain --target ethers-v5 --out-dir ./src/chain/@types 'src/chain/abis/*.json'",
+    "build": "yarn run build:contracts && yarn run build:app",
+    "start": "sh scripts/wrap_env.sh 'yarn react-scripts start'",
+    "eject": "yarn react-scripts eject",
+    "getabi": "yarn --silent postinstall",
+    "postinstall": "((w>/dev/null && curl -#LO https://github.com/RBBNet/Permissionamento/releases/download/$npm_package_abirelease/src.zip) || (ver && curl -#LO https://github.com/RBBNet/Permissionamento/releases/download/%npm_package_abirelease%/src.zip)) && node -e \"const fs = require('fs'); const AdmZip = require('adm-zip'); const outputPath = './src.zip'; console.log('Iniciando a descompactação do arquivo.'); const zip = new AdmZip(outputPath); zip.extractAllTo('./', true); console.log('Arquivo descompactado com sucesso.'); fs.unlinkSync(outputPath); console.log('Arquivo ZIP excluído com sucesso.'); console.log('\\nDownload das ABIs concluído.');\""
+  },
+  "eslintConfig": {
+    "extends": [
+      "react-app",
+      "plugin:prettier/recommended"
+    ]
+  },
+  "browserslist": {
+    "production": [
+      ">0.2%",
+      "not dead",
+      "not op_mini all"
+    ],
+    "development": [
+      "last 1 chrome version",
+      "last 1 firefox version",
+      "last 1 safari version"
+    ]
+  },
+  "dependencies": {
+    "@typechain/ethers-v5": "^11.0.0",
+    "@types/classnames": "^2.2.8",
+    "@types/enzyme": "^3.9.3",
+    "@types/enzyme-adapter-react-16": "^1.0.5",
+    "@types/jest": "^24.0.13",
+    "@types/node": "^12.0.4",
+    "@types/react": "^16.8.19",
+    "@types/react-dom": "^16.8.4",
+    "@types/styled-components": "^4.1.15",
+    "classnames": "^2.2.6",
+    "dotenv": "^7.0.0",
+    "ethers": "^5.7.2",
+    "idx": "^2.5.6",
+    "jest-junit": "^6.4.0",
+    "ngeohash": "^0.6.3",
+    "node-sass": "^4.12.0",
+    "react": "^16.8.6",
+    "react-dom": "^16.8.6",
+    "react-router-dom": "^5.0.0",
+    "react-scripts": "3.0.1",
+    "request": "^2.88.2",
+    "rimble-ui": "^0.8.0",
+    "styled-components": "^4.2.0",
+    "typescript": "^4.3.0",
+    "utf8": "^3.0.0",
+    "web3": "1.2.5",
+    "web3-utils": "^1.10.0",
+    "@ethersproject/abi": "^5.0.0",
+    "@ethersproject/providers": "^5.0.0",
+    "prop-types": "^15.7.2",
+    "adm-zip": "^0.4.13"
+  },
+  "devDependencies": {
+    "enzyme": "^3.9.0",
+    "enzyme-adapter-react-16": "^1.13.1",
+    "enzyme-to-json": "^3.3.5",
+    "eslint-config-prettier": "^6.0.0",
+    "eslint-plugin-prettier": "^3.1.0",
+    "husky": "^2.2.0",
+    "istanbul": "^0.4.5",
+    "lint-staged": "^8.1.6",
+    "mocha-junit-reporter": "^1.21.0",
+    "mocha-multi-reporters": "^1.1.7",
+    "prettier": "1.18.2",
+    "solidity-coverage": "^0.7.1",
+    "solium": "^1.2.4",
+    "ts-jest": "^24.0.2",
+    "typechain": "^8.2.0"
+  },
+  "lint-staged": {
+    "src/**/*.{js,jsx,ts,tsx,json,css}": [
+      "prettier --write",
+      "git add"
+    ]
+  },
+  "prettier": {
+    "useTabs": false,
+    "tabWidth": 2,
+    "singleQuote": true,
+    "printWidth": 120
+  },
+  "husky": {
+    "hooks": {
+      "pre-commit": "lint-staged"
+    }
+  },
+  "jest": {
+    "collectCoverageFrom": [
+      "src/**/*.{js,jsx,ts,tsx}",
+      "!**/src/index.tsx",
+      "!**/src/serviceWorker.ts"
+    ]
+  }
+}
