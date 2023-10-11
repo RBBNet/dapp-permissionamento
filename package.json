@@ -19,7 +19,7 @@
     "start": "sh scripts/wrap_env.sh 'yarn react-scripts start'",
     "eject": "yarn react-scripts eject",
     "getabi": "yarn --silent postinstall",
-    "postinstall": "((w>/dev/null && curl -#LO https://github.com/RBBNet/Permissionamento/releases/download/$npm_package_abirelease/src.zip) || (ver && curl -#LO https://github.com/RBBNet/Permissionamento/releases/download/%npm_package_abirelease%/src.zip)) && node -e \"const fs = require('fs'); const AdmZip = require('adm-zip'); const outputPath = './src.zip'; console.log('Iniciando a descompactação do arquivo.'); const zip = new AdmZip(outputPath); zip.extractAllTo('./', true); console.log('Arquivo descompactado com sucesso.'); fs.unlinkSync(outputPath); console.log('Arquivo ZIP excluído com sucesso.'); console.log('\\nDownload das ABIs concluído.');\""
+    "postinstall": "curl -#LO https://github.com/RBBNet/Permissionamento/releases/download/$npm_package_abirelease/src.zip && node -e \"const fs = require('fs'); const AdmZip = require('adm-zip'); const outputPath = './src.zip'; console.log('Iniciando a descompactação do arquivo.'); const zip = new AdmZip(outputPath); zip.extractAllTo('./', true); console.log('Arquivo descompactado com sucesso.'); fs.unlinkSync(outputPath); console.log('Arquivo ZIP excluído com sucesso.'); console.log('\\nDownload das ABIs concluído.');\""
   },
   "eslintConfig": {
     "extends": [
@@ -55,7 +55,7 @@
     "idx": "^2.5.6",
     "jest-junit": "^6.4.0",
     "ngeohash": "^0.6.3",
-    "node-sass": "^4.12.0",
+    "node-sass": "^4.14.1",
     "react": "^16.8.6",
     "react-dom": "^16.8.6",
     "react-router-dom": "^5.0.0",
