@@ -15,8 +15,8 @@ CHAIN_ID=648629
 - O *frontend* precisa das ABIs _(Application Binary Interface)_ dos contratos de permissionamento para construir o projeto. Estas ABIs serão baixadas automaticamente do repositório de contratos nas etapas de execução do projeto. Se necessário, altere a versão de ABIs na chave *abirelease* no arquivo package.json.
 
 - Escolha uma das opções para executar o projeto:
-1. [Execução via ambiente Linux]().
-2. [Execução via Docker]() (automatiza a preparação do ambiente). Recomendado!
+1. [Execução via ambiente Linux](https://github.com/RBBNet/dapp-permissionamento/#1-execu%C3%A7%C3%A3o-via-ambiente-linux).
+2. [Execução via Docker](https://github.com/RBBNet/dapp-permissionamento/#2-execu%C3%A7%C3%A3o-via-docker) (automatiza a preparação do ambiente). Recomendado!
 
 ## 1. Execução via ambiente Linux
 
