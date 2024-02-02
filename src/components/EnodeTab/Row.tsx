@@ -48,7 +48,7 @@ const EnodeRow: React.FC<EnodeRow> = ({
         <TextWithTooltip
           isAdmin={isAdmin}
           status={status}
-          text={`${['Bootnode', 'Validator', 'Writer', 'Observer'][nodeType]}`}
+          text={`${['boot', 'validator', 'writer', 'observer_boot'][nodeType]}`}
         />
       </Flex>
     </td>

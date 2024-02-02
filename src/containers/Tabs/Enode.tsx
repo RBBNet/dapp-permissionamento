@@ -37,7 +37,7 @@ type EnodeTabContainerProps = {
 };
 
 const EnodeTabContainer: React.FC<EnodeTabContainerProps> = ({ isOpen }) => {
-  const types = { Bootnode: 0, Validator: 1, Writer: 2, Observer: 3 };
+  const types = { boot: 0, validator: 1, writer: 2, observer_boot: 3 };
   const { isAdmin, dataReady: adminDataReady } = useAdminData();
   const { allowlist, isReadOnly, dataReady, nodeRulesContract } = useNodeData();
 

@@ -41,7 +41,7 @@ const AddNodeModal: React.FC<{
           >
             <Select
               name="type"
-              items={['Bootnode', 'Validator', 'Writer', 'Observer']}
+              items={['boot', 'validator', 'writer', 'observer_boot']}
               value={node.type}
               onChange={modifyInput}
               className={styles.fieldInput}
