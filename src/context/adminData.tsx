@@ -22,9 +22,9 @@ const loadAdminData = (adminContract: Admin | undefined, setAdmins: (admins: str
   if (adminContract === undefined) {
     setAdmins(undefined);
   } else {
-    adminContract.getAdmins().then((admins: string[] | undefined) => {
-      setAdmins(admins);
-    });
+    // adminContract.getAdmins().then((admins: string[] | undefined) => {
+    //   setAdmins(admins);
+    // });
   }
 };
 

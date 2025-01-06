@@ -1,7 +1,8 @@
 import React, { createContext, useContext, useEffect, useState, useMemo } from 'react';
 import { AccountRules } from '../chain/@types/AccountRules';
-import { accountRulesFactory } from '../chain/contracts/AccountRules';
+import { accountRulesV2Factory } from '../chain/contracts/AccountRulesV2';
 import { useNetwork } from './network';
+import { Contract, utils } from 'ethers';
 
 type Account = { address: string };
 
@@ -19,24 +20,30 @@ type ContextType =
 const AccountDataContext = createContext<ContextType>(undefined);
 
 const loadAccountData = (
-  accountRulesContract: AccountRules | undefined,
+  accountRulesContract: AccountRules | undefined | Contract,
   setAccountList: (account: Account[]) => void,
   setAccountReadOnly: (readOnly?: boolean) => void
 ) => {
+
   if (accountRulesContract === undefined) {
     setAccountList([]);
     setAccountReadOnly(undefined);
   } else {
-    accountRulesContract.isReadOnly().then((isReadOnly: boolean) => setAccountReadOnly(isReadOnly));
-    accountRulesContract.getSize().then((listSize: { gt: (arg0: number) => any }) => {
-      const listElementsPromises = [];
-      for (let i = 0; listSize.gt(i); i++) {
-        listElementsPromises.push(accountRulesContract.getByIndex(i));
-      }
-      Promise.all(listElementsPromises).then(responses => {
-        setAccountList(responses.map(address => ({ address })));
-      });
-    });
+    // accountRulesContract.getAccount(utils.getAddress("0x71bE63f3384f5fb98995898A86B02Fb2426c5788"))
+    //   .then((result: any) =>{
+
+    // })
+    // return;
+    // accountRulesContract.isReadOnly().then((isReadOnly: boolean) => setAccountReadOnly(isReadOnly));
+    // accountRulesContract.getSize().then((listSize: { gt: (arg0: number) => any }) => {
+    //   const listElementsPromises = [];
+    //   for (let i = 0; listSize.gt(i); i++) {
+    //     listElementsPromises.push(accountRulesContract.getByIndex(i)); // <---- Pega as conta de cada indice
+    //   }
+    //   Promise.all(listElementsPromises).then(responses => {
+    //     setAccountList(responses.map(address => ({ address })));
+    //   });
+    // });
   }
 };
 
@@ -59,35 +66,38 @@ export const AccountDataProvider: React.FC<{}> = props => {
       accountReadOnly,
       setAccountReadOnly,
       accountRulesContract,
-      setAccountRulesContract
+      setAccountRulesContract,
+
     }),
     [accountList, setAccountList, accountReadOnly, setAccountReadOnly, accountRulesContract, setAccountRulesContract]
   );
-
   const { accountIngressContract } = useNetwork();
 
   useEffect(() => {
     if (accountIngressContract === undefined) {
+
       setAccountRulesContract(undefined);
     } else {
-      accountRulesFactory(accountIngressContract).then(contract => {
-        setAccountRulesContract(contract);
-        contract.removeAllListeners('AccountAdded');
-        contract.removeAllListeners('AccountRemoved');
-        contract.on('AccountAdded', (success: boolean, account: any, event: any) => {
-          if (success) {
-            loadAccountData(contract, setAccountList, setAccountReadOnly);
-          }
-        });
-        contract.on('AccountRemoved', (success: boolean, account: any, event: any) => {
-          if (success) {
-            loadAccountData(contract, setAccountList, setAccountReadOnly);
-          }
-        });
-      });
+      
+      // accountRulesV2Factory(accountIngressContract).then(contract => {
+      //   setAccountRulesContract(contract);
+      //   return;
+      //   contract.removeAllListeners('AccountAdded');
+      //   contract.removeAllListeners('AccountRemoved');
+      //   contract.on('AccountAdded', (success: boolean, account: any, event: any) => {
+      //     if (success) {
+      //       loadAccountData(contract, setAccountList, setAccountReadOnly);
+      //     }
+      //   });
+      //   contract.on('AccountRemoved', (success: boolean, account: any, event: any) => {
+      //     if (success) {
+      //       loadAccountData(contract, setAccountList, setAccountReadOnly);
+      //     }
+      //   });
+      // });
+
     }
   }, [accountIngressContract, setAccountList, setAccountReadOnly]);
-
   return <AccountDataContext.Provider value={value} {...props} />;
 };
 
@@ -102,7 +112,7 @@ export const AccountDataProvider: React.FC<{}> = props => {
  */
 export const useAccountData = () => {
   const context = useContext(AccountDataContext);
-
+  
   if (!context) {
     throw new Error('useAccountData must be used within an AccountDataProvider.');
   }

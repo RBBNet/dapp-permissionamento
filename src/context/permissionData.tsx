@@ -125,14 +125,14 @@ export const PermissionDataProvider: React.FC<{}> = props => {
     } else {
       accountRulesFactory(accountIngressContract).then(contract => {
         setAccountRulesContract(contract);
-        contract.removeAllListeners('AccountAdded');
-        contract.removeAllListeners('AccountRemoved');
-        contract.on('AccountAdded', () => {
-          loadPermissionData(contract, setPermissionList, setAccountReadOnly, permissionFilter);
-        });
-        contract.on('AccountRemoved', () => {
-          loadPermissionData(contract, setPermissionList, setAccountReadOnly, permissionFilter);
-        });
+        // contract.removeAllListeners('AccountAdded');
+        // contract.removeAllListeners('AccountRemoved');
+        // contract.on('AccountAdded', () => {
+        //   loadPermissionData(contract, setPermissionList, setAccountReadOnly, permissionFilter);
+        // });
+        // contract.on('AccountRemoved', () => {
+        //   loadPermissionData(contract, setPermissionList, setAccountReadOnly, permissionFilter);
+        // });
       });
     }
   }, [accountIngressContract, permissionFilter]);

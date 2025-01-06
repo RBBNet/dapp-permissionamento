@@ -22,7 +22,7 @@ import {
   SUCCESS,
   FAIL
 } from '../../constants/transactions';
-
+import { Contract, Signer } from 'ethers';
 type AccountTabContainerProps = {
   isOpen: boolean;
 };
@@ -33,10 +33,12 @@ type Account = {
   status: string;
 };
 
+
+
 const AccountTabContainer: React.FC<AccountTabContainerProps> = ({ isOpen }) => {
   const { isAdmin, dataReady: adminDataReady } = useAdminData();
-  const { allowlist, isReadOnly, dataReady, accountRulesContract } = useAccountData();
-
+  const { allowlist, isReadOnly, dataReady, accountRulesContract } = useAccountData(); // <-- Puxa os dados na blockchain 
+  
   const { list, modals, toggleModal, addTransaction, updateTransaction, deleteTransaction, openToast } = useTab(
     allowlist,
     (identifier: string) => ({ address: identifier })
