@@ -4,14 +4,14 @@ import { useNetwork } from './network';
 import { organizationFactory } from '../chain/contracts/Organization';
 import { Organization as OrganizationContract } from '../chain/@types';
 
-type Organization = { id: BigNumber; name:string, canVote:boolean};
+type OrganizationData = { id: BigNumber; name:string, canVote:boolean};
 
 type ContextType =
 | {
-    organizationList: Organization[];
-    setOrganizationList: React.Dispatch<React.SetStateAction<Organization[]>>;
+    organizationList: OrganizationData[];
+    setOrganizationList: React.Dispatch<React.SetStateAction<OrganizationData[]>>;
     
-    organizationContract?: Contract;
+    organizationContract?: OrganizationContract;
     setOrganizationContract: React.Dispatch<React.SetStateAction<OrganizationContract | undefined>>;
     }
     | undefined;
@@ -20,7 +20,7 @@ const OrganizationDataContext = createContext<ContextType>(undefined);
     
 export const OrganizationDataProvider: React.FC<{}> = props => {
     const [organizationContract, setOrganizationContract] = useState<OrganizationContract | undefined>(undefined);
-    const [organizationList, setOrganizationList] = useState<Organization[]>([]);
+    const [organizationList, setOrganizationList] = useState<OrganizationData[]>([]);
     const value = useMemo(
         () => ({
             organizationList: organizationList,
@@ -49,15 +49,15 @@ export const OrganizationDataProvider: React.FC<{}> = props => {
 }
 
 const loadOrganizationData = (
-    organizationContract:  undefined | Contract,
-    setOrganizationList: (organization: Organization[]) => void,
+    organizationContract:  OrganizationContract | undefined,
+    setOrganizationList: (organization: OrganizationData[]) => void,
   ) => {
-
+    
     if (organizationContract === undefined) {
       setOrganizationList([]);
     } else {
-        organizationContract.getOrganizations().then((organizations : Organization[]) => {
-
+        
+        organizationContract.getOrganizations().then((organizations : OrganizationData[]) => {
             // Promise.all(organizations).then(responses => {
                 setOrganizationList(organizations);
             // });

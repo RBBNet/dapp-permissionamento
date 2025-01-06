@@ -9,35 +9,37 @@ import AccountRow from './Row';
 import EmptyRow from './EmptyRow';
 // Styles
 import styles from './styles.module.scss';
+import { AccountRulesV2 } from '../../chain/@types/AccountRulesV2Impl';
 
 type AccountTable = {
-  list: { address: string; status: string }[];
+  list: AccountRulesV2.AccountDataStruct[];
   toggleModal: (name: 'add' | 'remove' | 'lock') => (value?: boolean | string) => void;
   deleteTransaction: (identifier: string) => void;
   isAdmin: boolean;
-  isReadOnly: boolean;
 };
 
-const AccountTable: React.FC<AccountTable> = ({ list, toggleModal, deleteTransaction, isAdmin, isReadOnly }) => (
+const AccountTable: React.FC<AccountTable> = ({ list, toggleModal, deleteTransaction, isAdmin}) => (
   <Box mt={5}>
     <AccountTableHeader
       number={list.length}
       openAddModal={() => toggleModal('add')(true)}
-      disabledAdd={!isAdmin || isReadOnly}
+      disabledAdd={!isAdmin}
     />
     <Table mt={4}>
       <thead>
         <tr>
+          <th className={styles.headerCell}>Organization ID</th>
           <th className={styles.headerCell}>Account Address</th>
           <th className={styles.headerCell}>Status</th>
         </tr>
       </thead>
       <tbody>
-        {list.map(({ address, status }) => (
+        {list.map((acc) => (
           <AccountRow
-            key={address}
-            address={address}
-            status={status}
+            key={acc.account}
+            orgID={acc.orgId}
+            address={acc.account}
+            status={acc.active}
             isAdmin={isAdmin}
             deleteTransaction={deleteTransaction}
             openRemoveModal={toggleModal('remove')}
@@ -54,7 +56,6 @@ AccountTable.propTypes = {
   toggleModal: PropTypes.func.isRequired,
   deleteTransaction: PropTypes.func.isRequired,
   isAdmin: PropTypes.bool.isRequired,
-  isReadOnly: PropTypes.bool.isRequired
 };
 
 export default AccountTable;

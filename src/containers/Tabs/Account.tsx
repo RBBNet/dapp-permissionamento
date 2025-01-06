@@ -23,15 +23,12 @@ import {
   FAIL
 } from '../../constants/transactions';
 import { Contract, Signer } from 'ethers';
+import { AccountRulesV2 } from '../../chain/@types/AccountRulesV2Impl';
 type AccountTabContainerProps = {
   isOpen: boolean;
 };
 
-type Account = {
-  address: string;
-  identifier: string;
-  status: string;
-};
+
 
 
 
@@ -46,51 +43,11 @@ const AccountTabContainer: React.FC<AccountTabContainerProps> = ({ isOpen }) => 
 
   if (!!accountRulesContract) {
     const handleAdd = async (value: string) => {
-      try {
-        const tx = await accountRulesContract!.functions.addAccount(value);
-        toggleModal('add')(false);
-        addTransaction(value, PENDING_ADDITION);
-        const receipt = await tx.wait(1); // wait on receipt confirmations
-        const addEvent = receipt.events!.filter(e => e.event && e.event === 'AccountAdded').pop();
-        if (!addEvent) {
-          openToast(value, FAIL, `Error while processing account: ${value}`);
-        } else {
-          const addSuccessResult = idx(addEvent, _ => _.args[0]);
-          if (addSuccessResult === undefined) {
-            openToast(value, FAIL, `Error while adding account: ${value}`);
-          } else if (Boolean(addSuccessResult)) {
-            openToast(value, SUCCESS, `New account added: ${value}`);
-          } else {
-            openToast(value, FAIL, `Account "${value}" is already added`);
-          }
-        }
-        deleteTransaction(value);
-      } catch (e) {
-        toggleModal('add')(false);
-        updateTransaction(value, FAIL_ADDITION);
-        errorToast(e, value, openToast, () =>
-          openToast(value, FAIL, 'Could not add account', `${value} was unable to be added. Please try again.`)
-        );
-      }
+      
     };
 
     const handleRemove = async (value: string) => {
-      try {
-        const est = await accountRulesContract!.estimateGas.removeAccount(value);
-        const tx = await accountRulesContract!.functions.removeAccount(value, { gasLimit: est.toNumber() * 2 });
-        toggleModal('remove')(false);
-        addTransaction(value, PENDING_REMOVAL);
-        await tx.wait(1); // wait on receipt confirmations
-        openToast(value, SUCCESS, `Removal of account processed: ${value}`);
-        deleteTransaction(value);
-      } catch (e) {
-        console.log('error', e);
-        toggleModal('remove')(false);
-        updateTransaction(value, FAIL_REMOVAL);
-        errorToast(e, value, openToast, () =>
-          openToast(value, FAIL, 'Could not remove account', `${value} was unable to be removed. Please try again.`)
-        );
-      }
+      
     };
 
     const isValidAccount = (address: string) => {
@@ -102,7 +59,7 @@ const AccountTabContainer: React.FC<AccountTabContainerProps> = ({ isOpen }) => 
       }
 
       let isDuplicateAccount =
-        list.filter((item: Account) => address.toLowerCase() === item.address.toLowerCase()).length > 0;
+        list.filter((item: AccountRulesV2.AccountDataStruct) => address.toLowerCase() === item.account.toLowerCase()).length > 0;
       if (isDuplicateAccount) {
         return {
           valid: false,
@@ -114,12 +71,12 @@ const AccountTabContainer: React.FC<AccountTabContainerProps> = ({ isOpen }) => 
         valid: true
       };
     };
+    const allDataReady: boolean = dataReady;
 
-    const allDataReady: boolean = dataReady && adminDataReady;
     if (isOpen && allDataReady) {
       return (
         <AccountTab
-          list={list}
+          list={allowlist}
           modals={modals}
           toggleModal={toggleModal}
           handleAdd={handleAdd}
@@ -128,7 +85,6 @@ const AccountTabContainer: React.FC<AccountTabContainerProps> = ({ isOpen }) => 
           deleteTransaction={deleteTransaction}
           isValid={isValidAccount}
           isOpen={isOpen}
-          isReadOnly={isReadOnly!}
         />
       );
     } else if (isOpen && !allDataReady) {

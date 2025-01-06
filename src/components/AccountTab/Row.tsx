@@ -9,65 +9,41 @@ import { PENDING_ADDITION, PENDING_REMOVAL, FAIL_ADDITION, FAIL_REMOVAL } from '
 import TextWithTooltip from './TextWithTooltip';
 // Styles
 import styles from './styles.module.scss';
+import { BigNumberish } from 'ethers';
 
 type AccountRow = {
+  orgID: BigNumberish;
   address: string;
-  status: string;
+  status: boolean;
   isAdmin: boolean;
   deleteTransaction: (address: string) => void;
   openRemoveModal: (address: string) => void;
 };
 
-const AccountRow: React.FC<AccountRow> = ({ address, status, isAdmin, deleteTransaction, openRemoveModal }) => (
+const AccountRow: React.FC<AccountRow> = ({ orgID, address, status, isAdmin, deleteTransaction, openRemoveModal }) => (
   <tr className={styles.row}>
     <td>
-      <Flex alignItems="center" className={styles.tooltipFix}>
-        <TextWithTooltip status={status} text={address} isAdmin={isAdmin} />
+      <Flex alignItems="center" justifyContent="space-between">
+        {orgID}
+      </Flex>
+    </td>
+    <td>
+      <Flex alignItems="center" justifyContent="space-between">
+        {address}
       </Flex>
     </td>
     <td>
       <Flex justifyContent="space-between" alignItems="center">
-        {status === 'active' ? (
+        {status? (
           <Pill color="#018002" className={styles.pill}>
             Active
           </Pill>
-        ) : status === PENDING_ADDITION ? (
-          <Pill color="#FFA505" className={styles.pill}>
-            Pending Addition
+        ) : !status ? (
+          <Pill color="#FF1C1E" className={styles.pill}>
+            Inactive
           </Pill>
-        ) : status === PENDING_REMOVAL ? (
-          <Pill color="#FFA505" className={styles.pill}>
-            Pending Removal
-          </Pill>
-        ) : status === FAIL_ADDITION ? (
-          <Flex>
-            <Pill color="#FF1C1E" className={styles.pill}>
-              Addition Failed
-            </Pill>
-            <Pill color="green" ml={2} className={styles.pill} onClick={() => deleteTransaction(address)}>
-              Clear
-            </Pill>
-          </Flex>
-        ) : status === FAIL_REMOVAL ? (
-          <Flex>
-            <Pill color="#FF1C1E" className={styles.pill}>
-              Removal Failed
-            </Pill>
-            <Pill color="green" ml={2} className={styles.pill} onClick={() => deleteTransaction(address)}>
-              Clear
-            </Pill>
-          </Flex>
-        ) : (
+        ): (
           <div />
-        )}
-        {isAdmin && status === 'active' && (
-          <Button.Text
-            mainColor="#CCC"
-            icon="Delete"
-            icononly
-            className={styles.removeIcon}
-            onClick={() => openRemoveModal(address)}
-          />
         )}
       </Flex>
     </td>
@@ -75,8 +51,9 @@ const AccountRow: React.FC<AccountRow> = ({ address, status, isAdmin, deleteTran
 );
 
 AccountRow.propTypes = {
+  orgID: PropTypes.number.isRequired,
   address: PropTypes.string.isRequired,
-  status: PropTypes.string.isRequired,
+  status: PropTypes.bool.isRequired,
   isAdmin: PropTypes.bool.isRequired,
   deleteTransaction: PropTypes.func.isRequired,
   openRemoveModal: PropTypes.func.isRequired

@@ -1,27 +1,25 @@
 import React, { createContext, useContext, useEffect, useState, useMemo } from 'react';
-import { AccountRules } from '../chain/@types/AccountRules';
+import { AccountRulesV2Impl, AccountRulesV2 } from '../chain/@types/AccountRulesV2Impl';
 import { accountRulesV2Factory } from '../chain/contracts/AccountRulesV2';
 import { useNetwork } from './network';
 import { Contract, utils } from 'ethers';
 
-type Account = { address: string };
-
 type ContextType =
   | {
-      accountList: Account[];
-      setAccountList: React.Dispatch<React.SetStateAction<Account[]>>;
+      accountList: AccountRulesV2.AccountDataStruct[];
+      setAccountList: React.Dispatch<React.SetStateAction<AccountRulesV2.AccountDataStruct[]>>;
       accountReadOnly?: boolean;
       setAccountReadOnly: React.Dispatch<React.SetStateAction<boolean | undefined>>;
-      accountRulesContract?: AccountRules;
-      setAccountRulesContract: React.Dispatch<React.SetStateAction<AccountRules | undefined>>;
+      accountRulesContract?: AccountRulesV2Impl;
+      setAccountRulesContract: React.Dispatch<React.SetStateAction<AccountRulesV2Impl | undefined>>;
     }
   | undefined;
 
 const AccountDataContext = createContext<ContextType>(undefined);
 
 const loadAccountData = (
-  accountRulesContract: AccountRules | undefined | Contract,
-  setAccountList: (account: Account[]) => void,
+  accountRulesContract: AccountRulesV2Impl | undefined,
+  setAccountList: (account: AccountRulesV2.AccountDataStruct[]) => void,
   setAccountReadOnly: (readOnly?: boolean) => void
 ) => {
 
@@ -29,21 +27,13 @@ const loadAccountData = (
     setAccountList([]);
     setAccountReadOnly(undefined);
   } else {
-    // accountRulesContract.getAccount(utils.getAddress("0x71bE63f3384f5fb98995898A86B02Fb2426c5788"))
-    //   .then((result: any) =>{
 
-    // })
-    // return;
-    // accountRulesContract.isReadOnly().then((isReadOnly: boolean) => setAccountReadOnly(isReadOnly));
-    // accountRulesContract.getSize().then((listSize: { gt: (arg0: number) => any }) => {
-    //   const listElementsPromises = [];
-    //   for (let i = 0; listSize.gt(i); i++) {
-    //     listElementsPromises.push(accountRulesContract.getByIndex(i)); // <---- Pega as conta de cada indice
-    //   }
-    //   Promise.all(listElementsPromises).then(responses => {
-    //     setAccountList(responses.map(address => ({ address })));
-    //   });
-    // });
+    // Temporario
+    accountRulesContract.getAccounts()
+      .then((result: AccountRulesV2.AccountDataStruct[]) =>{
+        setAccountList(result)
+    })
+    return;
   }
 };
 
@@ -55,9 +45,9 @@ const loadAccountData = (
  *  - setAccountList: setter for the allowlist state
  */
 export const AccountDataProvider: React.FC<{}> = props => {
-  const [accountList, setAccountList] = useState<Account[]>([]);
+  const [accountList, setAccountList] = useState<AccountRulesV2.AccountDataStruct[]>([]);
   const [accountReadOnly, setAccountReadOnly] = useState<boolean | undefined>(undefined);
-  const [accountRulesContract, setAccountRulesContract] = useState<AccountRules | undefined>(undefined);
+  const [accountRulesContract, setAccountRulesContract] = useState<AccountRulesV2Impl | undefined>(undefined);
 
   const value = useMemo(
     () => ({
@@ -79,22 +69,22 @@ export const AccountDataProvider: React.FC<{}> = props => {
       setAccountRulesContract(undefined);
     } else {
       
-      // accountRulesV2Factory(accountIngressContract).then(contract => {
-      //   setAccountRulesContract(contract);
-      //   return;
-      //   contract.removeAllListeners('AccountAdded');
-      //   contract.removeAllListeners('AccountRemoved');
-      //   contract.on('AccountAdded', (success: boolean, account: any, event: any) => {
-      //     if (success) {
-      //       loadAccountData(contract, setAccountList, setAccountReadOnly);
-      //     }
-      //   });
-      //   contract.on('AccountRemoved', (success: boolean, account: any, event: any) => {
-      //     if (success) {
-      //       loadAccountData(contract, setAccountList, setAccountReadOnly);
-      //     }
-      //   });
-      // });
+      accountRulesV2Factory(accountIngressContract).then(contract => {
+        setAccountRulesContract(contract);
+        return;
+        contract.removeAllListeners('AccountAdded');
+        contract.removeAllListeners('AccountRemoved');
+        contract.on('AccountAdded', (success: boolean, account: any, event: any) => {
+          if (success) {
+            loadAccountData(contract, setAccountList, setAccountReadOnly);
+          }
+        });
+        contract.on('AccountRemoved', (success: boolean, account: any, event: any) => {
+          if (success) {
+            loadAccountData(contract, setAccountList, setAccountReadOnly);
+          }
+        });
+      });
 
     }
   }, [accountIngressContract, setAccountList, setAccountReadOnly]);
@@ -125,18 +115,12 @@ export const useAccountData = () => {
 
   const formattedAccountList = useMemo(() => {
     return accountList
-      .map(account => ({
-        ...account,
-        identifier: account.address.toLowerCase(),
-        status: 'active'
-      }))
-      .reverse();
   }, [accountList]);
 
   const dataReady = useMemo(() => {
-    return accountRulesContract !== undefined && accountReadOnly !== undefined && accountList !== undefined;
+    return accountRulesContract !== undefined ;
   }, [accountRulesContract, accountReadOnly, accountList]);
-
+  console.log(formattedAccountList)
   return {
     dataReady,
     allowlist: formattedAccountList,
