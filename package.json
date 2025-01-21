@@ -18,8 +18,7 @@
     "build": "yarn run build:contracts && yarn run build:app",
     "start": "sh scripts/wrap_env.sh 'yarn react-scripts start'",
     "eject": "yarn react-scripts eject",
-    "getabi": "yarn --silent postinstall",
-    "postinstall": "curl -#LO https://github.com/RBBNet/Permissionamento/releases/download/$npm_package_abirelease/src.zip && node -e \"const fs = require('fs'); const AdmZip = require('adm-zip'); const outputPath = './src.zip'; console.log('Iniciando a descompactação do arquivo.'); const zip = new AdmZip(outputPath); zip.extractAllTo('./', true); console.log('Arquivo descompactado com sucesso.'); fs.unlinkSync(outputPath); console.log('Arquivo ZIP excluído com sucesso.'); console.log('\\nDownload das ABIs concluído.');\""
+    "getabi": "yarn --silent postinstall"  
   },
   "eslintConfig": {
     "extends": [
