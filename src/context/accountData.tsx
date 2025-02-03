@@ -1,15 +1,21 @@
-import React, { createContext, useContext, useEffect, useState, useMemo } from 'react';
+import React, { createContext, useContext, useEffect, useState, useMemo, ReactNode } from 'react';
 import { AccountRulesV2Impl, AccountRulesV2 } from '../chain/@types/AccountRulesV2Impl';
-import { accountRulesV2Factory } from '../chain/contracts/AccountRulesV2';
+import { accountRulesV2Factory } from '../chain/factory/AccountRulesV2';
 import { useNetwork } from './network';
-import { Contract, utils } from 'ethers';
+import { configPromise } from '../util/configLoader';
+
+type Props = {
+  children: ReactNode
+}
 
 type ContextType =
   | {
+      operatorAddress: string;
+      setOperatorAddress: React.Dispatch<React.SetStateAction<string>>;
+
       accountList: AccountRulesV2.AccountDataStruct[];
       setAccountList: React.Dispatch<React.SetStateAction<AccountRulesV2.AccountDataStruct[]>>;
-      accountReadOnly?: boolean;
-      setAccountReadOnly: React.Dispatch<React.SetStateAction<boolean | undefined>>;
+
       accountRulesContract?: AccountRulesV2Impl;
       setAccountRulesContract: React.Dispatch<React.SetStateAction<AccountRulesV2Impl | undefined>>;
     }
@@ -20,86 +26,75 @@ const AccountDataContext = createContext<ContextType>(undefined);
 const loadAccountData = (
   accountRulesContract: AccountRulesV2Impl | undefined,
   setAccountList: (account: AccountRulesV2.AccountDataStruct[]) => void,
-  setAccountReadOnly: (readOnly?: boolean) => void
 ) => {
 
   if (accountRulesContract === undefined) {
     setAccountList([]);
-    setAccountReadOnly(undefined);
   } else {
-
     // Temporario
-    accountRulesContract.getAccounts()
-      .then((result: AccountRulesV2.AccountDataStruct[]) =>{
+    accountRulesContract.getAccounts(1, 20)
+      .then((result) =>{
         setAccountList(result)
     })
     return;
   }
 };
 
-/**
- * Provider for the data context that contains the account list
- * @param {Object} props Props given to the AccountDataProvider
- * @return The provider with the following value:
- *  - accountList: list of permitted accounts from Account Rules contract
- *  - setAccountList: setter for the allowlist state
- */
-export const AccountDataProvider: React.FC<{}> = props => {
+export const AccountDataProvider: React.FC<Props> = props => {
   const [accountList, setAccountList] = useState<AccountRulesV2.AccountDataStruct[]>([]);
-  const [accountReadOnly, setAccountReadOnly] = useState<boolean | undefined>(undefined);
+  const [operatorAddress, setOperatorAddress] = useState<string>('')
   const [accountRulesContract, setAccountRulesContract] = useState<AccountRulesV2Impl | undefined>(undefined);
 
   const value = useMemo(
     () => ({
       accountList: accountList,
       setAccountList: setAccountList,
-      accountReadOnly,
-      setAccountReadOnly,
       accountRulesContract,
       setAccountRulesContract,
-
+      operatorAddress,
+      setOperatorAddress
     }),
-    [accountList, setAccountList, accountReadOnly, setAccountReadOnly, accountRulesContract, setAccountRulesContract]
+    [operatorAddress, setOperatorAddress, accountList, setAccountList, accountRulesContract, setAccountRulesContract]
   );
-  const { accountIngressContract } = useNetwork();
+  const { signer } = useNetwork();
+  const config = configPromise;
 
   useEffect(() => {
-    if (accountIngressContract === undefined) {
+    if (signer === undefined) {
 
       setAccountRulesContract(undefined);
     } else {
-      
-      accountRulesV2Factory(accountIngressContract).then(contract => {
-        setAccountRulesContract(contract);
-        return;
-        contract.removeAllListeners('AccountAdded');
-        contract.removeAllListeners('AccountRemoved');
-        contract.on('AccountAdded', (success: boolean, account: any, event: any) => {
-          if (success) {
-            loadAccountData(contract, setAccountList, setAccountReadOnly);
-          }
-        });
-        contract.on('AccountRemoved', (success: boolean, account: any, event: any) => {
-          if (success) {
-            loadAccountData(contract, setAccountList, setAccountReadOnly);
-          }
-        });
-      });
+      signer.getAddress().then(address => setOperatorAddress(address))
+      window.ethereum?.on("accountsChanged", (accounts: any[]) =>{
+        setOperatorAddress(accounts[0])
+      })
+      config.then(config =>{
+          accountRulesV2Factory(config, signer).then(contract => {
+            setAccountRulesContract(contract);
+            contract.removeAllListeners(contract.filters.AccountAdded);
+            contract.removeAllListeners(contract.filters.AccountDeleted);
+
+            contract.on(contract.filters.AccountAdded(), () => {
+              console.log("Nova conta detectada")
+                loadAccountData(contract, setAccountList);
+            });
+            contract.on(contract.filters.AccountUpdated(), () => {
+              console.log("Conta atualizada")
+                loadAccountData(contract, setAccountList);
+            });
+            contract.on(contract.filters.AccountDeleted(), () => {
+              console.log("Conta removida")
+              loadAccountData(contract, setAccountList);
+            
+            });
+          });
+      })
 
     }
-  }, [accountIngressContract, setAccountList, setAccountReadOnly]);
+  }, [signer]);
   return <AccountDataContext.Provider value={value} {...props} />;
 };
 
-/**
- * Fetch the appropriate account data on chain and synchronize with it
- * @return {Object} Contains data of interest:
- *  - dataReady: true if isReadOnly and account allowlist are correctly fetched,
- *  false otherwise
- *  - userAddress: Address of the user
- *  - isReadOnly: Account contract is lock or unlock,
- *  - allowlist: list of permitted accounts from Account contract,
- */
 export const useAccountData = () => {
   const context = useContext(AccountDataContext);
   
@@ -107,11 +102,11 @@ export const useAccountData = () => {
     throw new Error('useAccountData must be used within an AccountDataProvider.');
   }
 
-  const { accountList, setAccountList, accountReadOnly, setAccountReadOnly, accountRulesContract } = context;
+  const { operatorAddress, accountList, setAccountList, accountRulesContract } = context;
 
   useEffect(() => {
-    loadAccountData(accountRulesContract, setAccountList, setAccountReadOnly);
-  }, [accountRulesContract, setAccountList, setAccountReadOnly]);
+    loadAccountData(accountRulesContract, setAccountList);
+  }, [accountRulesContract, setAccountList]);
 
   const formattedAccountList = useMemo(() => {
     return accountList
@@ -119,12 +114,12 @@ export const useAccountData = () => {
 
   const dataReady = useMemo(() => {
     return accountRulesContract !== undefined ;
-  }, [accountRulesContract, accountReadOnly, accountList]);
-  console.log(formattedAccountList)
+  }, [accountRulesContract, accountList]);
+
   return {
     dataReady,
-    allowlist: formattedAccountList,
-    isReadOnly: accountReadOnly,
-    accountRulesContract
+    accountList: formattedAccountList,
+    accountRulesContract,
+    operatorAddress:operatorAddress
   };
 };

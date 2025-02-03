@@ -1,0 +1,20 @@
+.view{
+    position: absolute;
+    display: flex;
+    flex-direction: row;
+    background-color: var(--color-default-background);
+  
+    min-width: 100%;
+    min-height: 100%;
+
+  }
+  
+  .content{
+  
+    position: absolute;
+    margin-left: var(--sidebar-width);
+    width: calc(100% - var(--sidebar-width));
+    height: 100%;
+    overflow-y: scroll;
+  }
+  

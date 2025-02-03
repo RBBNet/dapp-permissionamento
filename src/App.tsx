@@ -1,37 +1,18 @@
-// Libs
-import React from 'react';
-import ReactDOM from 'react-dom';
-import { ThemeProvider } from 'styled-components';
-// Components
-import Layout from './components/Layout/Layout';
-import Initializer from './containers/Layout/Initializer';
-import Dashboard from './containers/Dashboard/Dashboard';
-import NoProviderFlash from './components/Flashes/NoProvider';
-import WrongNetworkFlash from './components/Flashes/WrongNetwork';
-// Theme
-import theme from './constants/theme';
-// Context
-import { NetworkProvider } from './context/network';
-import { Config, configPromise } from './util/configLoader';
-import { ConfigDataProvider } from './context/configData';
 
-export const initApp = async ({ target }: { target: HTMLElement }) => {
-  const config = await configPromise;
-  ReactDOM.render(<App config={config} />, target);
-};
+import { ConfigDataProvider } from './context/configData'
+import { Config } from './util/configLoader'
+import { NetworkProvider } from './context/network'
+import Layout from './containers/Layout'
+import './App.module.css'
+const App: React.FC<{config: Config}> = ({config}) => {
 
-const App: React.FC<{ config: Config }> = ({ config }) => (
-  <ConfigDataProvider config={config}>
-    <ThemeProvider theme={theme}>
+  return (
+    <ConfigDataProvider config={config}>
       <NetworkProvider>
-        <Layout>
-          <Initializer NoProvider={NoProviderFlash} WrongNetwork={WrongNetworkFlash}>
-            <Dashboard />
-          </Initializer>
-        </Layout>
+        <Layout/>
       </NetworkProvider>
-    </ThemeProvider>
-  </ConfigDataProvider>
-);
+    </ConfigDataProvider>
+  )
+}
 
-export default App;
+export default App

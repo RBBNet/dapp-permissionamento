@@ -1,10 +1,16 @@
-import { BigNumber, Contract } from 'ethers';
-import React, { createContext, useEffect, useState, useMemo, useContext } from 'react';
+import { BigNumberish, Contract } from 'ethers';
+import React, { createContext, useEffect, useState, useMemo, useContext, ReactNode } from 'react';
 import { useNetwork } from './network';
-import { organizationFactory } from '../chain/contracts/Organization';
-import { Organization as OrganizationContract } from '../chain/@types';
+import { organizationFactory } from '../chain/factory/OrganizationFactory';
+import { OrganizationImpl as OrganizationContract } from '../chain/@types';
+import { configPromise } from '../util/configLoader';
+import { Organization } from '../chain/@types/OrganizationImpl';
 
-type OrganizationData = { id: BigNumber; name:string, canVote:boolean};
+type OrganizationData = { id: number; name:string, canVote:boolean};
+
+type Props = {
+  children: ReactNode;
+}
 
 type ContextType =
 | {
@@ -18,7 +24,7 @@ type ContextType =
 
 const OrganizationDataContext = createContext<ContextType>(undefined);
     
-export const OrganizationDataProvider: React.FC<{}> = props => {
+export const OrganizationDataProvider: React.FC<Props> = props => {
     const [organizationContract, setOrganizationContract] = useState<OrganizationContract | undefined>(undefined);
     const [organizationList, setOrganizationList] = useState<OrganizationData[]>([]);
     const value = useMemo(
@@ -31,33 +37,40 @@ export const OrganizationDataProvider: React.FC<{}> = props => {
         [organizationList, setOrganizationList, organizationContract, setOrganizationContract]
       );
 
-    const { accountIngressContract } = useNetwork();
+    const { signer } = useNetwork();
+
+    const config = configPromise
 
     useEffect(() => {
-        if (accountIngressContract === undefined) {
+        if (signer == undefined) {
+            console.log("Nao encontrado")
             setOrganizationContract(undefined);
         } else {
-          
-            organizationFactory(accountIngressContract).then(contract =>{
-                setOrganizationContract(contract)
-                // contract.getOrganizations().then(organizations => console.log(organizations));
+            config.then(config =>
+                organizationFactory(config, signer).then(contract =>{
+                    // console.log(contract.getOrganization())
+                    setOrganizationContract(contract)
+                    // contract.getOrganizations()
+                    //     .then(organizations => console.log(organizations[0]));
+    
+                })
 
-            })
+            )
         }
-      }, [accountIngressContract]);
+      }, [signer]);
       return <OrganizationDataContext.Provider value={value} {...props} />;
 }
 
 const loadOrganizationData = (
     organizationContract:  OrganizationContract | undefined,
-    setOrganizationList: (organization: OrganizationData[]) => void,
+    setOrganizationList: (organization: Organization.OrganizationDataStructOutput[]) => void,
   ) => {
     
     if (organizationContract === undefined) {
       setOrganizationList([]);
     } else {
         
-        organizationContract.getOrganizations().then((organizations : OrganizationData[]) => {
+        organizationContract.getOrganizations().then((organizations) => {
             // Promise.all(organizations).then(responses => {
                 setOrganizationList(organizations);
             // });
@@ -84,7 +97,7 @@ export const useOrganizationData = () => {
     const formattedOrganizationList = useMemo(() => {
       return organizationList
         .map(organization => ({
-          id: Number(organization.id._hex),
+          id: Number(organization.id),
           name: organization.name,
           canVote: organization.canVote
         }))
