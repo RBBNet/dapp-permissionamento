@@ -1,7 +1,11 @@
 import styles from "./index.module.css"
 
 
-function Fill({children}){
+type Props = {
+    children?: any | any[] | undefined;
+}
+
+function Fill({children} : Props){
     
     return (
         <div className={styles.fill}>

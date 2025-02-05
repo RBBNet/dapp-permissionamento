@@ -73,7 +73,7 @@ export const AccountDataProvider: React.FC<Props> = props => {
             setAccountRulesContract(contract);
             contract.removeAllListeners(contract.filters.AccountAdded);
             contract.removeAllListeners(contract.filters.AccountDeleted);
-
+            contract.removeAllListeners(contract.filters.AccountUpdated);
             contract.on(contract.filters.AccountAdded(), () => {
               console.log("Nova conta detectada")
                 loadAccountData(contract, setAccountList);

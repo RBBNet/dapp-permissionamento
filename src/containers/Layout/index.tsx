@@ -45,7 +45,8 @@ function Layout(){
             </OrganizationDataProvider>
           </AccountDataProvider>
           <div className={styles.content} style={{color:'black'}} > 
-            <Contas/>
+            {/* <Contas/> */}
+            {content}
           </div>
         </div>
     )

@@ -1,8 +1,8 @@
 import styles from "./index.module.css"
 
 type Props = {
-    children: any[];
-    state:boolean;
+    children?: any[];
+    state?:boolean;
     setState: (state:boolean) => void;
     title: string;
 }
@@ -11,7 +11,7 @@ function Modal({children, state, setState, title} : Props){
 
     return (
         <>
-            { state ?
+            { (state == undefined ? true :  state) ?
                 <>
                     <div className={styles.modal}>
                         <div className={styles.menu}>

@@ -54,7 +54,8 @@ export function ConvertNameToRoleID(name:string){
     return undefined
 }
 
-export function ConvertRoleID(hash: string){
+export function ConvertRoleID(hash: string | undefined){
+    if(hash == undefined) return "null";
     if(hash.startsWith("0x"))
         hash = hash.slice(2, hash.length)
 
