@@ -7,6 +7,7 @@ export type Config = {
   organizationAddress:string;
   accountRulesAddress:string;
   nodeRulesAddress:string;
+  governancaAddress:string;
 };
 
 const loadConfig = async (): Promise<Config> => {
@@ -17,11 +18,12 @@ const loadConfig = async (): Promise<Config> => {
     let organizationAddress = import.meta.env.VITE_ORGANIZATION_CONTRACT_ADDRESS
     let accountRulesAddress = import.meta.env.VITE_ACCOUNT_CONTRACT_ADDRESS
     let nodeRulesAddress = import.meta.env.VITE_NODES_CONTRACT_ADDRESS
+    let governancaAddress = import.meta.env.VITE_GOVERNANCA_CONTRACT_ADDRESS
     if(!accountIngressAddress || !nodeIngressAddress || !networkId){
         throw new DOMException("")
     }
 
-    return { accountIngressAddress, nodeIngressAddress, networkId, organizationAddress, accountRulesAddress, nodeRulesAddress };
+    return { accountIngressAddress, nodeIngressAddress, networkId, organizationAddress, accountRulesAddress, nodeRulesAddress, governancaAddress };
 
 };
 

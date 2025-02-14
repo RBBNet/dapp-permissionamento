@@ -11,6 +11,6 @@ export const nodeRulesFactory = async (config: Config, signer: Signer) => {
 
   
 
-  instance = (new Contract(config.nodeRulesAddress, NodeRulesAbi.abi, signer.provider) as unknown) as NodeRulesV2Impl;
+  instance = (new Contract(config.nodeRulesAddress, NodeRulesAbi.abi, signer) as unknown) as NodeRulesV2Impl;
   return instance;
 };

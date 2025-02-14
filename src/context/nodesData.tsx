@@ -1,6 +1,6 @@
 // Libs
 import React, { createContext, useContext, useEffect, useState, useMemo } from 'react';
-import { NodeRulesV2Impl } from '../chain/@types/NodeRulesV2Impl';
+import { NodeRulesV2, NodeRulesV2Impl } from '../chain/@types/NodeRulesV2Impl';
 import { nodeRulesFactory } from '../chain/factory/NodeRules';
 import { useNetwork } from './network';
 
@@ -29,8 +29,8 @@ type Enode = {
 
 type ContextType =
   | {
-      nodeList: Enode[];
-      setNodeList: React.Dispatch<React.SetStateAction<Enode[]>>;
+      nodeList: NodeRulesV2.NodeDataStructOutput[];
+      setNodeList: React.Dispatch<React.SetStateAction<NodeRulesV2.NodeDataStructOutput[]>>;
       nodeRulesContract?: NodeRulesV2Impl;
       setNodeRulesContract: React.Dispatch<React.SetStateAction<NodeRulesV2Impl | undefined>>;
     }
@@ -40,17 +40,17 @@ const DataContext = createContext<ContextType>(undefined);
 
 const loadNodeData = (
   nodeRulesContract: NodeRulesV2Impl | undefined,
-  setNodeList: (account: Enode[]) => void
+  setNodeList: (account: NodeRulesV2.NodeDataStructOutput[]) => void
 ) => {
   if (nodeRulesContract === undefined) {
     setNodeList([]);
   } else {
-   
+    nodeRulesContract.getNodes(1, 100).then(result => setNodeList(result))
   }
 };
 
 
-export const NodeDataProvider: React.FC<{}> = props => {
+export const NodeDataProvider: React.FC<{children:any}> = props => {
   const [nodeList, setNodeList] = useState<any[]>([]);
   const [nodeRulesContract, setNodeRulesContract] = useState<NodeRulesV2Impl | undefined>(undefined);
 
@@ -69,7 +69,26 @@ export const NodeDataProvider: React.FC<{}> = props => {
         config.then(config =>{
             nodeRulesFactory(config, signer).then(contract => {
               setNodeRulesContract(contract);
-              contract.getNodes(1, 5).then(result => setNodeList(result))
+              contract.removeAllListeners(contract.filters.NodeAdded);
+              contract.removeAllListeners(contract.filters.NodeUpdated);
+              contract.removeAllListeners(contract.filters.NodeDeleted);
+              contract.removeAllListeners(contract.filters.NodeStatusUpdated);
+
+              contract.on(contract.filters.NodeAdded(), ()=>{
+                console.log("Nó novo adicionado");
+                loadNodeData(contract, setNodeList)
+              })
+              contract.on(contract.filters.NodeUpdated(), ()=>{
+                loadNodeData(contract, setNodeList)
+              })
+
+              contract.on(contract.filters.NodeDeleted(), ()=>{
+                loadNodeData(contract, setNodeList)
+              })
+
+              contract.on(contract.filters.NodeStatusUpdated(), ()=>{
+                loadNodeData(contract, setNodeList)
+              })
             });
 
         })

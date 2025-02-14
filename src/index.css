@@ -64,7 +64,7 @@ input[type=text]:read-only{
 }
 
 select:focus, textarea:focus,
-input[type=text]:focus & :not(input[type=text]:read-only){
+input[type=text]:focus:not(:read-only){
   box-shadow: 0px 0px 4px var(--color-text-highlight);
   border: 1px solid transparent;
 }

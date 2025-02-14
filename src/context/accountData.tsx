@@ -1,8 +1,9 @@
-import React, { createContext, useContext, useEffect, useState, useMemo, ReactNode } from 'react';
+import React, { createContext, useContext, useEffect, useState, useMemo, ReactNode, SetStateAction, Dispatch } from 'react';
 import { AccountRulesV2Impl, AccountRulesV2 } from '../chain/@types/AccountRulesV2Impl';
 import { accountRulesV2Factory } from '../chain/factory/AccountRulesV2';
 import { useNetwork } from './network';
 import { configPromise } from '../util/configLoader';
+import { Signer } from 'ethers';
 
 type Props = {
   children: ReactNode
@@ -10,11 +11,11 @@ type Props = {
 
 type ContextType =
   | {
+      operatorData: AccountRulesV2.AccountDataStructOutput;
+      setOperatorData: React.Dispatch<React.SetStateAction<AccountRulesV2.AccountDataStructOutput>>;
+
       operatorAddress: string;
       setOperatorAddress: React.Dispatch<React.SetStateAction<string>>;
-
-      accountList: AccountRulesV2.AccountDataStruct[];
-      setAccountList: React.Dispatch<React.SetStateAction<AccountRulesV2.AccountDataStruct[]>>;
 
       accountRulesContract?: AccountRulesV2Impl;
       setAccountRulesContract: React.Dispatch<React.SetStateAction<AccountRulesV2Impl | undefined>>;
@@ -25,36 +26,35 @@ const AccountDataContext = createContext<ContextType>(undefined);
 
 const loadAccountData = (
   accountRulesContract: AccountRulesV2Impl | undefined,
-  setAccountList: (account: AccountRulesV2.AccountDataStruct[]) => void,
+  setOperatorData: React.Dispatch<React.SetStateAction<AccountRulesV2.AccountDataStructOutput>>,
+  operatorAddress: string
 ) => {
+  // console.log("Carregando dados")
 
-  if (accountRulesContract === undefined) {
-    setAccountList([]);
-  } else {
-    // Temporario
-    accountRulesContract.getAccounts(1, 20)
-      .then((result) =>{
-        setAccountList(result)
-    })
-    return;
+  if(operatorAddress == undefined){
+    console.log("Signer é nulo")
+    return
   }
+
+  accountRulesContract?.getAccount(operatorAddress).then(account => setOperatorData(account)).catch(err => console.error(err))
+
+  return;
 };
 
 export const AccountDataProvider: React.FC<Props> = props => {
-  const [accountList, setAccountList] = useState<AccountRulesV2.AccountDataStruct[]>([]);
-  const [operatorAddress, setOperatorAddress] = useState<string>('')
+  const [operatorData, setOperatorData] = useState<AccountRulesV2.AccountDataStructOutput | null>();
   const [accountRulesContract, setAccountRulesContract] = useState<AccountRulesV2Impl | undefined>(undefined);
-
+  const [operatorAddress, setOperatorAddress] = useState<string | undefined>(undefined);
   const value = useMemo(
     () => ({
-      accountList: accountList,
-      setAccountList: setAccountList,
+      operatorData,
+      setOperatorData,
       accountRulesContract,
       setAccountRulesContract,
       operatorAddress,
       setOperatorAddress
     }),
-    [operatorAddress, setOperatorAddress, accountList, setAccountList, accountRulesContract, setAccountRulesContract]
+    [operatorData, setOperatorData, accountRulesContract, setAccountRulesContract, operatorAddress, setOperatorAddress]
   );
   const { signer } = useNetwork();
   const config = configPromise;
@@ -64,31 +64,36 @@ export const AccountDataProvider: React.FC<Props> = props => {
 
       setAccountRulesContract(undefined);
     } else {
-      signer.getAddress().then(address => setOperatorAddress(address))
+      window.ethereum?.removeAllListeners("accountsChanged");
       window.ethereum?.on("accountsChanged", (accounts: any[]) =>{
-        setOperatorAddress(accounts[0])
+        setOperatorAddress(accounts[0]);
       })
-      config.then(config =>{
+      signer.getAddress().then(address => {
+        setOperatorAddress(address)
+        config.then(config =>{
           accountRulesV2Factory(config, signer).then(contract => {
             setAccountRulesContract(contract);
+            const filters = [
+              contract.filters.AccountAdded,
+              contract.filters.AccountUpdated,
+              contract.filters.AccountDeleted,
+              contract.filters.AccountStatusUpdated
+            ];
             contract.removeAllListeners(contract.filters.AccountAdded);
-            contract.removeAllListeners(contract.filters.AccountDeleted);
             contract.removeAllListeners(contract.filters.AccountUpdated);
-            contract.on(contract.filters.AccountAdded(), () => {
-              console.log("Nova conta detectada")
-                loadAccountData(contract, setAccountList);
-            });
-            contract.on(contract.filters.AccountUpdated(), () => {
-              console.log("Conta atualizada")
-                loadAccountData(contract, setAccountList);
-            });
-            contract.on(contract.filters.AccountDeleted(), () => {
-              console.log("Conta removida")
-              loadAccountData(contract, setAccountList);
-            
-            });
+            contract.removeAllListeners(contract.filters.AccountDeleted);
+            contract.removeAllListeners(contract.filters.AccountStatusUpdated);
+
+            filters.forEach((filter) =>{
+
+              contract.on(filter.call(undefined), (event) => {
+                loadAccountData(contract, setOperatorData, operatorAddress)
+              });
+            })
           });
-      })
+          })
+        }
+      ) 
 
     }
   }, [signer]);
@@ -102,24 +107,20 @@ export const useAccountData = () => {
     throw new Error('useAccountData must be used within an AccountDataProvider.');
   }
 
-  const { operatorAddress, accountList, setAccountList, accountRulesContract } = context;
+  const { operatorData, operatorAddress, setOperatorData, accountRulesContract } = context;
 
   useEffect(() => {
-    loadAccountData(accountRulesContract, setAccountList);
-  }, [accountRulesContract, setAccountList]);
+    loadAccountData(accountRulesContract, setOperatorData, operatorAddress);
+  }, [accountRulesContract, operatorAddress]);
 
-  const formattedAccountList = useMemo(() => {
-    return accountList
-  }, [accountList]);
 
   const dataReady = useMemo(() => {
     return accountRulesContract !== undefined ;
-  }, [accountRulesContract, accountList]);
+  }, [accountRulesContract]);
 
   return {
     dataReady,
-    accountList: formattedAccountList,
     accountRulesContract,
-    operatorAddress:operatorAddress
+    operatorData
   };
 };

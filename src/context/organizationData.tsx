@@ -94,6 +94,8 @@ export const useOrganizationData = () => {
       loadOrganizationData(organizationContract, setOrganizationList);
     }, [organizationContract, setOrganizationList]);
     
+    // TO DO 
+    // Pode ser removido. Desnecessário
     const formattedOrganizationList = useMemo(() => {
       return organizationList
         .map(organization => ({

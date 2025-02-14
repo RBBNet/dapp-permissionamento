@@ -12,13 +12,9 @@ function Contas(){
                     Contas
                 </h1>
                 
-                <OrganizationDataProvider>
-                    <AccountDataProvider>
-                        
-                        <AccountTable/>
-                    </AccountDataProvider>
 
-                </OrganizationDataProvider>
+                <AccountTable/>
+
 
             </div>
         </div>

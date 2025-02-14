@@ -2,24 +2,25 @@ import React from "react";
 import { randomString } from "../../util/StringUtils";
 import styles from "./index.module.css"
 
-type TableColumn = {
+export type TableColumn = {
     name: string;
     value: string
     call?: (data_row: any) => any
-    component?: React.FC;
+    component?: React.FC<any>;
 }
 
-type TableProps = {
+export type TableProps = {
     columns: TableColumn[]
     data: any[]
 }
 
 function Table({ columns, data }: TableProps){
-    if(data == undefined || data.length == 0) return (
-        <>
-            Não há dados
-        </>
-    )
+    // if(data == undefined || data.length == 0) return (
+    //     <>
+    //         Não há dados
+    //     </>
+    // )
+    // console.log("Tabela")
 
     let createElement = (data:any, column: TableColumn, entireData: any) =>{
         

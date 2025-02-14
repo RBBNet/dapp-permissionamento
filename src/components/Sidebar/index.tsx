@@ -15,32 +15,22 @@ type Props = {
 
 function Sidebar({ currentPage, updateContent }: Props) {
 
-    const { operatorAddress, accountRulesContract } = useAccountData();
+    const { operatorData, accountRulesContract } = useAccountData();
     const { organizationContract } = useOrganizationData()
     const [org, setOrg] = useState('');
     const [roleId, setRoleId] = useState('');
-    const [account, setAccount] = useState<AccountRulesV2.AccountDataStructOutput | undefined>(undefined)
-    const hash = operatorAddress
-    
+
+    // console.log(operatorData)
     useEffect(()=>{
-        if(operatorAddress == '') return;
-        console.log(operatorAddress)
+        if(operatorData == undefined) return;
+        operatorData.roleId 
 
-        accountRulesContract?.getAccount(operatorAddress).then(account=>{
-            setRoleId(ConvertRoleID(account?.roleId));
-            setAccount(account)
-            organizationContract?.getOrganization(account.orgId).then(organization =>{
-                setOrg(organization.name);
-            })
-        }).catch(exception =>{
-            // Handle do erro de conta inexistente
-            console.log(exception)
-            console.log("Usuário não encontrado")
-            setOrg('')
-            setAccount(undefined)
+        organizationContract?.getOrganization(operatorData.orgId).then(organization =>{
+            setOrg(organization.name);
         })
+  
 
-    }, [accountRulesContract, organizationContract, operatorAddress])
+    }, [accountRulesContract, organizationContract, operatorData])
     
     const getImage = (name:string) =>{
         return "/user.png"
@@ -61,11 +51,11 @@ function Sidebar({ currentPage, updateContent }: Props) {
                 <div className={styles.side}>
                     <div className={styles.details}>
                         {
-                            org != '' && account != undefined ?
+                            org != '' && operatorData != undefined ?
                             <>
                                 {org}
                                 <div className={styles.pill}>
-                                    { roleId.substring(0, roleId.indexOf("_")) }
+                                    { ConvertRoleID(operatorData.roleId, true) }
                                 </div>
                             </>
                             : ""
@@ -73,7 +63,12 @@ function Sidebar({ currentPage, updateContent }: Props) {
                         
                     </div>
                     <span>
-                        {hash.substring(0, 12) + "..." + hash.substring(hash.length -4, hash.length)}
+                        {
+                            operatorData != undefined ?
+                                operatorData?.account.substring(0, 12) + "..." + operatorData?.account.substring(operatorData?.account.length -4,operatorData?.account.length)
+                            : 
+                                ""
+                        }
                     </span>
                 </div>
             </div>

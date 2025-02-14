@@ -7,41 +7,73 @@ import { useEffect, useRef, useState } from "react";
 
 import { ethers } from "ethers";
 import { useOrganizationData } from "../../context/organizationData";
-import { AccountRulesV2, AccountRulesV2Impl } from "../../chain/@types";
-import { Organization } from "../../chain/@types/OrganizationImpl";
-import { BigNumberish } from "ethers";
+import { AccountRulesV2 } from "../../chain/@types";
+
+import { formatOrganization } from "../../util/StringUtils";
 
 function AccountTable(){
-    const { accountList, accountRulesContract, operatorAddress } = useAccountData();
-    const { organizationContract, orgList } = useOrganizationData();
+    const { accountRulesContract, operatorData } = useAccountData();
+    const { orgList } = useOrganizationData();
 
     const [toggleModalAdd, setToggleModalAdd] = useState(false);
     const [toggleModalRemove, setToggleModalRemove] = useState(false);
     const [toggleModalUpdate, setToggleModalUpdate] = useState(false);
 
-    const [accountData, setAccountData] = useState<AccountRulesV2.AccountDataStructOutput | undefined>();
-    const [organization, setOrganization] = useState<Organization.OrganizationDataStructOutput>();
+    const [accountList, setAccountList] = useState<AccountRulesV2.AccountDataStructOutput[]>([])
     const [updateData, setUpdateData] = useState<AccountRulesV2.AccountDataStructOutput | undefined>();
-
-    const addressRemoveRef = useRef<HTMLInputElement >(null);
-    const addressRef = useRef<HTMLInputElement >(null);
-    const typeRef = useRef<HTMLSelectElement >(null);
-    const hashRef = useRef<HTMLTextAreaElement >(null);
-
+    
     useEffect(()=>{
-        
-        accountRulesContract?.getAccount(operatorAddress).then(account=>{
-            setAccountData(account);
-            organizationContract?.getOrganization(account.orgId).then(org =>{
-                setOrganization(org)
-            })
+        accountRulesContract?.getAccounts(1, 999).then(accounts=>{
+            setAccountList(accounts);
         }).catch(exception =>{
-            // Handle do erro de conta inexistente
             console.log(exception)
-            setOrganization(undefined)
-            setAccountData(undefined);
         })
-    }, [accountRulesContract, operatorAddress])
+    }, [accountRulesContract, operatorData])
+    
+    const AddComponent = () =>{
+        const addressRef = useRef<HTMLInputElement >(null);
+        const typeRef = useRef<HTMLSelectElement >(null);
+        const hashRef = useRef<HTMLTextAreaElement >(null);
+
+        function createAccount(){
+            if(!addressRef.current || !hashRef.current || !typeRef.current) return;
+    
+            let address = addressRef.current.value;
+            let roleId = ethers.keccak256(ethers.toUtf8Bytes(typeRef.current.value));
+            let dataHash = ethers.keccak256(ethers.toUtf8Bytes(hashRef.current.value))
+    
+            accountRulesContract!.addLocalAccount(address, 
+                roleId, dataHash)
+        }
+
+        return (
+            <Modal title={"Criar conta"} setState={setToggleModalAdd}>
+                <div>
+                    <label htmlFor="">Endereço</label>
+                    <input ref={addressRef} type="text" />
+                </div>
+                <div>
+                    <label htmlFor="">Papel da Conta</label>
+                    <select ref={typeRef} name="" id="">
+                        <option value="LOCAL_ADMIN_ROLE">Local</option>
+                        <option value="DEPLOYER_ROLE">Deployer</option>
+                        <option value="USER_ROLE">User</option>
+                    </select>
+                </div>
+                <Fill>
+                    <label htmlFor="">Hash</label>
+                    <textarea ref={hashRef} style={{resize:"none", minHeight:"70px"}} name="" id="" />
+                </Fill>
+
+                <Fill>
+                    
+                    <button  onClick={createAccount}>
+                        Criar
+                    </button>
+                </Fill>
+            </Modal>
+        )
+    }
 
     function _updateAccount(roledID: string, hash: string, status: string){
         if(updateData == undefined) return;
@@ -66,10 +98,10 @@ function AccountTable(){
         setUpdateData(data)
     }
 
-    const UpdateAccountComponent = (props: any) => {
-        const typeRef = useRef<HTMLSelectElement | null>();
-        const hashRef = useRef<HTMLTextAreaElement | null>();
-        const statusRef = useRef<HTMLSelectElement | null>();
+    const UpdateAccountComponent = () => {
+        const typeRef = useRef<HTMLSelectElement | null>(null);
+        const hashRef = useRef<HTMLTextAreaElement | null>(null);
+        const statusRef = useRef<HTMLSelectElement | null>(null);
         return (
             <>
                 <Modal title={"Atualizar conta"} setState={setToggleModalUpdate}>
@@ -115,59 +147,45 @@ function AccountTable(){
         accountRulesContract!.deleteLocalAccount(address);
     }
 
-    function deleteAccount(){
-        if(!addressRemoveRef.current) return;
-
-        _deleteAccount(addressRemoveRef.current?.value)
-    }
-
-    function createAccount(){
-        if(!addressRef.current || !hashRef.current || !typeRef.current) return;
-
-        let address = addressRef.current.value;
-        let roleId = ethers.keccak256(ethers.toUtf8Bytes(typeRef.current.value));
-        let dataHash = ethers.keccak256(ethers.toUtf8Bytes(hashRef.current.value))
-        console.log(dataHash)
-        console.log(roleId)
-        console.log(address)
-
-        accountRulesContract!.addLocalAccount(address, 
-            roleId, dataHash)
-    }
-
-    function formatRoleId(roleId: string){
-        let formatted = ConvertRoleID(roleId)
-
-        return formatted.substring(0, formatted.indexOf("_"))
     
+    const DeleteComponent = () =>{
+        function deleteAccount(){
+            if(!addressRemoveRef.current) return;
+    
+            _deleteAccount(addressRemoveRef.current?.value)
+        }
+        const addressRemoveRef = useRef<HTMLInputElement >(null);
+
+        return (
+            <Modal title={"Remover conta"} state={toggleModalRemove} setState={setToggleModalRemove}>
+
+                <Fill>
+                    <label htmlFor="">Endereço</label>
+                    <input ref={addressRemoveRef} type="text" />
+                </Fill>
+
+                <Fill>
+                    <button  onClick={deleteAccount}>
+                        Remover
+                    </button>
+                </Fill>
+            </Modal>
+        )
     }
 
-    function formatOrganization(orgId: BigNumberish){
-        let org = undefined;
-        for(let orgD of orgList){
-            if(orgD.id == orgId as number){
-                org = orgD;
-            }
-        }
-        if(org){
-            return org.name
-        }
-        return "undefined"
-    }
-
-    const actionsComponent = (data: any) =>{
+    const ActionsComponent = (data: any) =>{
         return (
             <>
                 { 
-                    data.orgId == accountData?.orgId 
+                    data.orgId == operatorData?.orgId 
                     && data.roleId !=  "0x"+ConvertNameToRoleID("GLOBAL_ADMIN_ROLE")
-                    && accountData?.roleId == "0x"+ConvertNameToRoleID("GLOBAL_ADMIN_ROLE")
+                    && operatorData?.roleId == "0x"+ConvertNameToRoleID("GLOBAL_ADMIN_ROLE")
                 ? 
-                <>
-                    <img width={"16px"} src="/icons/user.png" alt="" onClick={()=>updateAccount(data)} />
-                    <img width={"16px"} src="/icons/delete.png" alt="" onClick={()=>_deleteAccount(data.account)} />
-
-                </>
+                <div style={{display:"flex", flexDirection:"row",gap:"4px", justifyContent:"center"}}>
+                    <img width={"16px"} src="/icons/edit.png" onClick={()=>updateAccount(data)} />
+                    <img width={"16px"} src="/icons/delete.png" onClick={()=>_deleteAccount(data.account)} />
+                    <img width={"16px"} src="/icons/blocked.png" />
+                </div>
                 : "―"}
                 
             </>
@@ -178,7 +196,7 @@ function AccountTable(){
         {
             'name': 'Organização',
             'value':'orgId',
-            'call':formatOrganization
+            'call':(data:any)=>formatOrganization(orgList, data)
         },
         {
             'name':'Endereço',
@@ -187,7 +205,7 @@ function AccountTable(){
         {
             'name':'Papel',
             'value':'roleId',
-            'call':formatRoleId
+            'call': (hash: string)=> ConvertRoleID(hash, true)
         },
         {
             'name':'Hash',
@@ -201,61 +219,32 @@ function AccountTable(){
         {
             'name':'Ações',
             'value':"_",
-            'component':actionsComponent
+            'component':ActionsComponent
         }
     ]
 
     return (
     <>
-        { toggleModalUpdate ? <UpdateAccountComponent/> : "" }
-
-        <Modal title={"Remover conta"} state={toggleModalRemove} setState={setToggleModalRemove}>
-
-            <Fill>
-                <label htmlFor="">Endereço</label>
-                <input ref={addressRemoveRef} type="text" />
-            </Fill>
-
-            <Fill>
-                <button  onClick={deleteAccount}>
-                    Remover
-                </button>
-            </Fill>
-        </Modal>
-
-        <Modal title={"Criar conta"} state={toggleModalAdd} setState={setToggleModalAdd}>
-            <div>
-                <label htmlFor="">Endereço</label>
-                <input ref={addressRef} type="text" />
-            </div>
-            <div>
-                <label htmlFor="">Papel da Conta</label>
-                <select ref={typeRef} name="" id="">
-                    <option value="LOCAL_ADMIN_ROLE">Local</option>
-                    <option value="DEPLOYER_ROLE">Deployer</option>
-                    <option value="USER_ROLE">User</option>
-                </select>
-            </div>
-            <Fill>
-                <label htmlFor="">Hash</label>
-                <textarea ref={hashRef} style={{resize:"none", minHeight:"70px"}} name="" id="" />
-            </Fill>
-
-            <Fill>
-                
-                <button  onClick={createAccount}>
-                    Criar
-                </button>
-            </Fill>
-        </Modal>
         {
-            accountData?.roleId == "0x"+ConvertNameToRoleID("GLOBAL_ADMIN_ROLE") ?
+            toggleModalAdd ? <AddComponent/> : ""
+        }
+        { 
+            toggleModalUpdate ? <UpdateAccountComponent/> : "" 
+        }
+        {
+            toggleModalRemove ? <DeleteComponent/> : ""
+        }
+    
+
+        
+        {
+            operatorData?.roleId == "0x"+ConvertNameToRoleID("GLOBAL_ADMIN_ROLE") ?
             <div style={{display:"flex", flexDirection:"row-reverse", gap:"10px"}}>
                 <button style={{padding:'10px'}} onClick={()=>setToggleModalAdd(true)}>
-                    Criar conta
+                    Criar
                 </button>
                 <button style={{padding:'10px'}} onClick={()=>setToggleModalRemove(true)}>
-                    Remover conta
+                    Remover
                 </button>
             </div>
             : ""

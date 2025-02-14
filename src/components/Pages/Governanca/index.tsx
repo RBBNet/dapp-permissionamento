@@ -1,5 +1,6 @@
 import styles from "../page.module.css"
-import Modal from "../../../containers/Modal/modal";
+import GovernancaTable from "../../../containers/Tables/Governanca";
+import { GovernanceProvider } from "../../../context/governancaData";
 
 function Governanca(){
 
@@ -10,8 +11,10 @@ function Governanca(){
                     <h1>
                         Governança
                     </h1>
-                    
-                    
+                    <GovernanceProvider>
+
+                        <GovernancaTable/>
+                    </GovernanceProvider>
                 </div>
             </div>
         

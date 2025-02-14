@@ -5,7 +5,7 @@ import { useOrganizationData } from "../../context/organizationData";
 
 function OrganizationTable(){
     const { orgList } = useOrganizationData();
-    console.log(orgList)
+
     const columns = [
         {
             'name': 'ID',
