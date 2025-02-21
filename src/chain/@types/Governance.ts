@@ -35,6 +35,7 @@ export declare namespace Governance {
     status: BigNumberish;
     result: BigNumberish;
     organizations: BigNumberish[];
+    votes: BigNumberish[];
     cancelationReason: string;
   };
 
@@ -49,6 +50,7 @@ export declare namespace Governance {
     status: bigint,
     result: bigint,
     organizations: bigint[],
+    votes: bigint[],
     cancelationReason: string
   ] & {
     id: bigint;
@@ -61,6 +63,7 @@ export declare namespace Governance {
     status: bigint;
     result: bigint;
     organizations: bigint[];
+    votes: bigint[];
     cancelationReason: string;
   };
 }
@@ -73,12 +76,12 @@ export interface GovernanceInterface extends Interface {
       | "castVote"
       | "createProposal"
       | "executeProposal"
+      | "getNumberOfProposals"
       | "getProposal"
-      | "getVotes"
+      | "getProposals"
       | "idSeed"
       | "organizations"
       | "proposals"
-      | "votes"
   ): FunctionFragment;
 
   getEvent(
@@ -110,12 +113,16 @@ export interface GovernanceInterface extends Interface {
     values: [BigNumberish]
   ): string;
   encodeFunctionData(
+    functionFragment: "getNumberOfProposals",
+    values?: undefined
+  ): string;
+  encodeFunctionData(
     functionFragment: "getProposal",
     values: [BigNumberish]
   ): string;
   encodeFunctionData(
-    functionFragment: "getVotes",
-    values: [BigNumberish]
+    functionFragment: "getProposals",
+    values: [BigNumberish, BigNumberish]
   ): string;
   encodeFunctionData(functionFragment: "idSeed", values?: undefined): string;
   encodeFunctionData(
@@ -125,10 +132,6 @@ export interface GovernanceInterface extends Interface {
   encodeFunctionData(
     functionFragment: "proposals",
     values: [BigNumberish]
-  ): string;
-  encodeFunctionData(
-    functionFragment: "votes",
-    values: [BigNumberish, BigNumberish]
   ): string;
 
   decodeFunctionResult(functionFragment: "accounts", data: BytesLike): Result;
@@ -146,33 +149,39 @@ export interface GovernanceInterface extends Interface {
     data: BytesLike
   ): Result;
   decodeFunctionResult(
+    functionFragment: "getNumberOfProposals",
+    data: BytesLike
+  ): Result;
+  decodeFunctionResult(
     functionFragment: "getProposal",
     data: BytesLike
   ): Result;
-  decodeFunctionResult(functionFragment: "getVotes", data: BytesLike): Result;
+  decodeFunctionResult(
+    functionFragment: "getProposals",
+    data: BytesLike
+  ): Result;
   decodeFunctionResult(functionFragment: "idSeed", data: BytesLike): Result;
   decodeFunctionResult(
     functionFragment: "organizations",
     data: BytesLike
   ): Result;
   decodeFunctionResult(functionFragment: "proposals", data: BytesLike): Result;
-  decodeFunctionResult(functionFragment: "votes", data: BytesLike): Result;
 }
 
 export namespace OrganizationVotedEvent {
   export type InputTuple = [
     proposalId: BigNumberish,
-    admin: AddressLike,
+    orgId: BigNumberish,
     approve: boolean
   ];
   export type OutputTuple = [
     proposalId: bigint,
-    admin: string,
+    orgId: bigint,
     approve: boolean
   ];
   export interface OutputObject {
     proposalId: bigint;
-    admin: string;
+    orgId: bigint;
     approve: boolean;
   }
   export type Event = TypedContractEvent<InputTuple, OutputTuple, OutputObject>;
@@ -206,11 +215,10 @@ export namespace ProposalCanceledEvent {
 }
 
 export namespace ProposalCreatedEvent {
-  export type InputTuple = [proposalId: BigNumberish, creator: AddressLike];
-  export type OutputTuple = [proposalId: bigint, creator: string];
+  export type InputTuple = [proposalId: BigNumberish];
+  export type OutputTuple = [proposalId: bigint];
   export interface OutputObject {
     proposalId: bigint;
-    creator: string;
   }
   export type Event = TypedContractEvent<InputTuple, OutputTuple, OutputObject>;
   export type Filter = TypedDeferredTopicFilter<Event>;
@@ -219,11 +227,10 @@ export namespace ProposalCreatedEvent {
 }
 
 export namespace ProposalExecutedEvent {
-  export type InputTuple = [proposalId: BigNumberish, executor: AddressLike];
-  export type OutputTuple = [proposalId: bigint, executor: string];
+  export type InputTuple = [proposalId: BigNumberish];
+  export type OutputTuple = [proposalId: bigint];
   export interface OutputObject {
     proposalId: bigint;
-    executor: string;
   }
   export type Event = TypedContractEvent<InputTuple, OutputTuple, OutputObject>;
   export type Filter = TypedDeferredTopicFilter<Event>;
@@ -329,13 +336,19 @@ export interface Governance extends BaseContract {
     "nonpayable"
   >;
 
+  getNumberOfProposals: TypedContractMethod<[], [bigint], "view">;
+
   getProposal: TypedContractMethod<
     [proposalId: BigNumberish],
     [Governance.ProposalDataStructOutput],
     "view"
   >;
 
-  getVotes: TypedContractMethod<[proposalId: BigNumberish], [bigint[]], "view">;
+  getProposals: TypedContractMethod<
+    [pageNumber: BigNumberish, pageSize: BigNumberish],
+    [Governance.ProposalDataStructOutput[]],
+    "view"
+  >;
 
   idSeed: TypedContractMethod<[], [bigint], "view">;
 
@@ -355,12 +368,6 @@ export interface Governance extends BaseContract {
         cancelationReason: string;
       }
     ],
-    "view"
-  >;
-
-  votes: TypedContractMethod<
-    [arg0: BigNumberish, arg1: BigNumberish],
-    [bigint],
     "view"
   >;
 
@@ -401,6 +408,9 @@ export interface Governance extends BaseContract {
     nameOrSignature: "executeProposal"
   ): TypedContractMethod<[proposalId: BigNumberish], [string[]], "nonpayable">;
   getFunction(
+    nameOrSignature: "getNumberOfProposals"
+  ): TypedContractMethod<[], [bigint], "view">;
+  getFunction(
     nameOrSignature: "getProposal"
   ): TypedContractMethod<
     [proposalId: BigNumberish],
@@ -408,8 +418,12 @@ export interface Governance extends BaseContract {
     "view"
   >;
   getFunction(
-    nameOrSignature: "getVotes"
-  ): TypedContractMethod<[proposalId: BigNumberish], [bigint[]], "view">;
+    nameOrSignature: "getProposals"
+  ): TypedContractMethod<
+    [pageNumber: BigNumberish, pageSize: BigNumberish],
+    [Governance.ProposalDataStructOutput[]],
+    "view"
+  >;
   getFunction(
     nameOrSignature: "idSeed"
   ): TypedContractMethod<[], [bigint], "view">;
@@ -432,13 +446,6 @@ export interface Governance extends BaseContract {
         cancelationReason: string;
       }
     ],
-    "view"
-  >;
-  getFunction(
-    nameOrSignature: "votes"
-  ): TypedContractMethod<
-    [arg0: BigNumberish, arg1: BigNumberish],
-    [bigint],
     "view"
   >;
 
@@ -493,7 +500,7 @@ export interface Governance extends BaseContract {
   >;
 
   filters: {
-    "OrganizationVoted(uint256,address,bool)": TypedContractEvent<
+    "OrganizationVoted(uint256,uint256,bool)": TypedContractEvent<
       OrganizationVotedEvent.InputTuple,
       OrganizationVotedEvent.OutputTuple,
       OrganizationVotedEvent.OutputObject
@@ -526,7 +533,7 @@ export interface Governance extends BaseContract {
       ProposalCanceledEvent.OutputObject
     >;
 
-    "ProposalCreated(uint256,address)": TypedContractEvent<
+    "ProposalCreated(uint256)": TypedContractEvent<
       ProposalCreatedEvent.InputTuple,
       ProposalCreatedEvent.OutputTuple,
       ProposalCreatedEvent.OutputObject
@@ -537,7 +544,7 @@ export interface Governance extends BaseContract {
       ProposalCreatedEvent.OutputObject
     >;
 
-    "ProposalExecuted(uint256,address)": TypedContractEvent<
+    "ProposalExecuted(uint256)": TypedContractEvent<
       ProposalExecutedEvent.InputTuple,
       ProposalExecutedEvent.OutputTuple,
       ProposalExecutedEvent.OutputObject

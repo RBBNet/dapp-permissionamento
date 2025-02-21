@@ -7,6 +7,8 @@ const ROLE_IDS: Record<string, string> = {
     '14823911f2da1b49f045a0929a60b8c1f2a7fc8c06c7284ca3e8ab4e193a08c8':'USER_ROLE'
 }
 
+
+
 export function randomString(length: number){
     let result = '';
     const characters = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789';
@@ -70,7 +72,7 @@ export function formatOrganization(orgList: any,orgId: BigNumberish){
 }
 
 export function formatTimeDifference(seconds: number): string {
-    console.log("Segundos:" + seconds)
+    // console.log("Segundos:" + seconds)
     const hours = Math.floor(seconds / 3600);
     const minutes = Math.floor((seconds % 3600) / 60);
     const secs = seconds % 60;

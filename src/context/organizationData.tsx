@@ -43,7 +43,7 @@ export const OrganizationDataProvider: React.FC<Props> = props => {
 
     useEffect(() => {
         if (signer == undefined) {
-            console.log("Nao encontrado")
+            // console.log("Nao encontrado")
             setOrganizationContract(undefined);
         } else {
             config.then(config =>

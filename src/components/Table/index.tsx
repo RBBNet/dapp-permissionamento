@@ -15,12 +15,6 @@ export type TableProps = {
 }
 
 function Table({ columns, data }: TableProps){
-    // if(data == undefined || data.length == 0) return (
-    //     <>
-    //         Não há dados
-    //     </>
-    // )
-    // console.log("Tabela")
 
     let createElement = (data:any, column: TableColumn, entireData: any) =>{
         

@@ -55,17 +55,21 @@ export interface AccountRulesV2Interface extends Interface {
       | "deleteAccount"
       | "deleteLocalAccount"
       | "getAccount"
+      | "getAccountTargetAccess"
       | "getAccounts"
       | "getAccountsByOrg"
       | "getNumberOfAccounts"
       | "getNumberOfAccountsByOrg"
+      | "getNumberOfRestrictedAccounts"
+      | "getNumberOfRestrictedSmartContracts"
+      | "getRestrictedAccounts"
+      | "getRestrictedSmartContracts"
       | "getRoleAdmin"
+      | "getSmartContractSenderAccess"
       | "grantRole"
       | "hasRole"
       | "isAccountActive"
       | "renounceRole"
-      | "restrictedAccounts"
-      | "restrictedSmartContracts"
       | "revokeRole"
       | "setAccountTargetAccess"
       | "setSmartContractSenderAccess"
@@ -108,6 +112,10 @@ export interface AccountRulesV2Interface extends Interface {
     values: [AddressLike]
   ): string;
   encodeFunctionData(
+    functionFragment: "getAccountTargetAccess",
+    values: [AddressLike]
+  ): string;
+  encodeFunctionData(
     functionFragment: "getAccounts",
     values: [BigNumberish, BigNumberish]
   ): string;
@@ -124,8 +132,28 @@ export interface AccountRulesV2Interface extends Interface {
     values: [BigNumberish]
   ): string;
   encodeFunctionData(
+    functionFragment: "getNumberOfRestrictedAccounts",
+    values?: undefined
+  ): string;
+  encodeFunctionData(
+    functionFragment: "getNumberOfRestrictedSmartContracts",
+    values?: undefined
+  ): string;
+  encodeFunctionData(
+    functionFragment: "getRestrictedAccounts",
+    values: [BigNumberish, BigNumberish]
+  ): string;
+  encodeFunctionData(
+    functionFragment: "getRestrictedSmartContracts",
+    values: [BigNumberish, BigNumberish]
+  ): string;
+  encodeFunctionData(
     functionFragment: "getRoleAdmin",
     values: [BytesLike]
+  ): string;
+  encodeFunctionData(
+    functionFragment: "getSmartContractSenderAccess",
+    values: [AddressLike]
   ): string;
   encodeFunctionData(
     functionFragment: "grantRole",
@@ -142,14 +170,6 @@ export interface AccountRulesV2Interface extends Interface {
   encodeFunctionData(
     functionFragment: "renounceRole",
     values: [BytesLike, AddressLike]
-  ): string;
-  encodeFunctionData(
-    functionFragment: "restrictedAccounts",
-    values?: undefined
-  ): string;
-  encodeFunctionData(
-    functionFragment: "restrictedSmartContracts",
-    values?: undefined
   ): string;
   encodeFunctionData(
     functionFragment: "revokeRole",
@@ -198,6 +218,10 @@ export interface AccountRulesV2Interface extends Interface {
   ): Result;
   decodeFunctionResult(functionFragment: "getAccount", data: BytesLike): Result;
   decodeFunctionResult(
+    functionFragment: "getAccountTargetAccess",
+    data: BytesLike
+  ): Result;
+  decodeFunctionResult(
     functionFragment: "getAccounts",
     data: BytesLike
   ): Result;
@@ -214,7 +238,27 @@ export interface AccountRulesV2Interface extends Interface {
     data: BytesLike
   ): Result;
   decodeFunctionResult(
+    functionFragment: "getNumberOfRestrictedAccounts",
+    data: BytesLike
+  ): Result;
+  decodeFunctionResult(
+    functionFragment: "getNumberOfRestrictedSmartContracts",
+    data: BytesLike
+  ): Result;
+  decodeFunctionResult(
+    functionFragment: "getRestrictedAccounts",
+    data: BytesLike
+  ): Result;
+  decodeFunctionResult(
+    functionFragment: "getRestrictedSmartContracts",
+    data: BytesLike
+  ): Result;
+  decodeFunctionResult(
     functionFragment: "getRoleAdmin",
+    data: BytesLike
+  ): Result;
+  decodeFunctionResult(
+    functionFragment: "getSmartContractSenderAccess",
     data: BytesLike
   ): Result;
   decodeFunctionResult(functionFragment: "grantRole", data: BytesLike): Result;
@@ -225,14 +269,6 @@ export interface AccountRulesV2Interface extends Interface {
   ): Result;
   decodeFunctionResult(
     functionFragment: "renounceRole",
-    data: BytesLike
-  ): Result;
-  decodeFunctionResult(
-    functionFragment: "restrictedAccounts",
-    data: BytesLike
-  ): Result;
-  decodeFunctionResult(
-    functionFragment: "restrictedSmartContracts",
     data: BytesLike
   ): Result;
   decodeFunctionResult(functionFragment: "revokeRole", data: BytesLike): Result;
@@ -263,22 +299,19 @@ export namespace AccountAddedEvent {
     account: AddressLike,
     orgId: BigNumberish,
     roleId: BytesLike,
-    dataHash: BytesLike,
-    admin: AddressLike
+    dataHash: BytesLike
   ];
   export type OutputTuple = [
     account: string,
     orgId: bigint,
     roleId: string,
-    dataHash: string,
-    admin: string
+    dataHash: string
   ];
   export interface OutputObject {
     account: string;
     orgId: bigint;
     roleId: string;
     dataHash: string;
-    admin: string;
   }
   export type Event = TypedContractEvent<InputTuple, OutputTuple, OutputObject>;
   export type Filter = TypedDeferredTopicFilter<Event>;
@@ -287,16 +320,11 @@ export namespace AccountAddedEvent {
 }
 
 export namespace AccountDeletedEvent {
-  export type InputTuple = [
-    account: AddressLike,
-    orgId: BigNumberish,
-    admin: AddressLike
-  ];
-  export type OutputTuple = [account: string, orgId: bigint, admin: string];
+  export type InputTuple = [account: AddressLike, orgId: BigNumberish];
+  export type OutputTuple = [account: string, orgId: bigint];
   export interface OutputObject {
     account: string;
     orgId: bigint;
-    admin: string;
   }
   export type Event = TypedContractEvent<InputTuple, OutputTuple, OutputObject>;
   export type Filter = TypedDeferredTopicFilter<Event>;
@@ -308,20 +336,13 @@ export namespace AccountStatusUpdatedEvent {
   export type InputTuple = [
     account: AddressLike,
     orgId: BigNumberish,
-    active: boolean,
-    admin: AddressLike
+    active: boolean
   ];
-  export type OutputTuple = [
-    account: string,
-    orgId: bigint,
-    active: boolean,
-    admin: string
-  ];
+  export type OutputTuple = [account: string, orgId: bigint, active: boolean];
   export interface OutputObject {
     account: string;
     orgId: bigint;
     active: boolean;
-    admin: string;
   }
   export type Event = TypedContractEvent<InputTuple, OutputTuple, OutputObject>;
   export type Filter = TypedDeferredTopicFilter<Event>;
@@ -333,20 +354,17 @@ export namespace AccountTargetAccessUpdatedEvent {
   export type InputTuple = [
     account: AddressLike,
     restricted: boolean,
-    allowedTargets: AddressLike[],
-    admin: AddressLike
+    allowedTargets: AddressLike[]
   ];
   export type OutputTuple = [
     account: string,
     restricted: boolean,
-    allowedTargets: string[],
-    admin: string
+    allowedTargets: string[]
   ];
   export interface OutputObject {
     account: string;
     restricted: boolean;
     allowedTargets: string[];
-    admin: string;
   }
   export type Event = TypedContractEvent<InputTuple, OutputTuple, OutputObject>;
   export type Filter = TypedDeferredTopicFilter<Event>;
@@ -359,22 +377,19 @@ export namespace AccountUpdatedEvent {
     account: AddressLike,
     orgId: BigNumberish,
     roleId: BytesLike,
-    dataHash: BytesLike,
-    admin: AddressLike
+    dataHash: BytesLike
   ];
   export type OutputTuple = [
     account: string,
     orgId: bigint,
     roleId: string,
-    dataHash: string,
-    admin: string
+    dataHash: string
   ];
   export interface OutputObject {
     account: string;
     orgId: bigint;
     roleId: string;
     dataHash: string;
-    admin: string;
   }
   export type Event = TypedContractEvent<InputTuple, OutputTuple, OutputObject>;
   export type Filter = TypedDeferredTopicFilter<Event>;
@@ -444,20 +459,17 @@ export namespace SmartContractSenderAccessUpdatedEvent {
   export type InputTuple = [
     smartContract: AddressLike,
     restricted: boolean,
-    allowedSenders: AddressLike[],
-    admin: AddressLike
+    allowedSenders: AddressLike[]
   ];
   export type OutputTuple = [
     smartContract: string,
     restricted: boolean,
-    allowedSenders: string[],
-    admin: string
+    allowedSenders: string[]
   ];
   export interface OutputObject {
     smartContract: string;
     restricted: boolean;
     allowedSenders: string[];
-    admin: string;
   }
   export type Event = TypedContractEvent<InputTuple, OutputTuple, OutputObject>;
   export type Filter = TypedDeferredTopicFilter<Event>;
@@ -543,14 +555,20 @@ export interface AccountRulesV2 extends BaseContract {
     "view"
   >;
 
+  getAccountTargetAccess: TypedContractMethod<
+    [account: AddressLike],
+    [[boolean, string[]] & { restricted: boolean }],
+    "view"
+  >;
+
   getAccounts: TypedContractMethod<
-    [page: BigNumberish, pageSize: BigNumberish],
+    [pageNumber: BigNumberish, pageSize: BigNumberish],
     [AccountRulesV2.AccountDataStructOutput[]],
     "view"
   >;
 
   getAccountsByOrg: TypedContractMethod<
-    [orgId: BigNumberish, page: BigNumberish, pageSize: BigNumberish],
+    [orgId: BigNumberish, pageNumber: BigNumberish, pageSize: BigNumberish],
     [AccountRulesV2.AccountDataStructOutput[]],
     "view"
   >;
@@ -563,7 +581,33 @@ export interface AccountRulesV2 extends BaseContract {
     "view"
   >;
 
+  getNumberOfRestrictedAccounts: TypedContractMethod<[], [bigint], "view">;
+
+  getNumberOfRestrictedSmartContracts: TypedContractMethod<
+    [],
+    [bigint],
+    "view"
+  >;
+
+  getRestrictedAccounts: TypedContractMethod<
+    [pageNumber: BigNumberish, pageSize: BigNumberish],
+    [string[]],
+    "view"
+  >;
+
+  getRestrictedSmartContracts: TypedContractMethod<
+    [pageNumber: BigNumberish, pageSize: BigNumberish],
+    [string[]],
+    "view"
+  >;
+
   getRoleAdmin: TypedContractMethod<[role: BytesLike], [string], "view">;
+
+  getSmartContractSenderAccess: TypedContractMethod<
+    [smartContract: AddressLike],
+    [[boolean, string[]] & { restricted: boolean }],
+    "view"
+  >;
 
   grantRole: TypedContractMethod<
     [role: BytesLike, account: AddressLike],
@@ -588,10 +632,6 @@ export interface AccountRulesV2 extends BaseContract {
     [void],
     "nonpayable"
   >;
-
-  restrictedAccounts: TypedContractMethod<[], [string[]], "view">;
-
-  restrictedSmartContracts: TypedContractMethod<[], [string[]], "view">;
 
   revokeRole: TypedContractMethod<
     [role: BytesLike, account: AddressLike],
@@ -677,16 +717,23 @@ export interface AccountRulesV2 extends BaseContract {
     "view"
   >;
   getFunction(
+    nameOrSignature: "getAccountTargetAccess"
+  ): TypedContractMethod<
+    [account: AddressLike],
+    [[boolean, string[]] & { restricted: boolean }],
+    "view"
+  >;
+  getFunction(
     nameOrSignature: "getAccounts"
   ): TypedContractMethod<
-    [page: BigNumberish, pageSize: BigNumberish],
+    [pageNumber: BigNumberish, pageSize: BigNumberish],
     [AccountRulesV2.AccountDataStructOutput[]],
     "view"
   >;
   getFunction(
     nameOrSignature: "getAccountsByOrg"
   ): TypedContractMethod<
-    [orgId: BigNumberish, page: BigNumberish, pageSize: BigNumberish],
+    [orgId: BigNumberish, pageNumber: BigNumberish, pageSize: BigNumberish],
     [AccountRulesV2.AccountDataStructOutput[]],
     "view"
   >;
@@ -697,8 +744,35 @@ export interface AccountRulesV2 extends BaseContract {
     nameOrSignature: "getNumberOfAccountsByOrg"
   ): TypedContractMethod<[orgId: BigNumberish], [bigint], "view">;
   getFunction(
+    nameOrSignature: "getNumberOfRestrictedAccounts"
+  ): TypedContractMethod<[], [bigint], "view">;
+  getFunction(
+    nameOrSignature: "getNumberOfRestrictedSmartContracts"
+  ): TypedContractMethod<[], [bigint], "view">;
+  getFunction(
+    nameOrSignature: "getRestrictedAccounts"
+  ): TypedContractMethod<
+    [pageNumber: BigNumberish, pageSize: BigNumberish],
+    [string[]],
+    "view"
+  >;
+  getFunction(
+    nameOrSignature: "getRestrictedSmartContracts"
+  ): TypedContractMethod<
+    [pageNumber: BigNumberish, pageSize: BigNumberish],
+    [string[]],
+    "view"
+  >;
+  getFunction(
     nameOrSignature: "getRoleAdmin"
   ): TypedContractMethod<[role: BytesLike], [string], "view">;
+  getFunction(
+    nameOrSignature: "getSmartContractSenderAccess"
+  ): TypedContractMethod<
+    [smartContract: AddressLike],
+    [[boolean, string[]] & { restricted: boolean }],
+    "view"
+  >;
   getFunction(
     nameOrSignature: "grantRole"
   ): TypedContractMethod<
@@ -723,12 +797,6 @@ export interface AccountRulesV2 extends BaseContract {
     [void],
     "nonpayable"
   >;
-  getFunction(
-    nameOrSignature: "restrictedAccounts"
-  ): TypedContractMethod<[], [string[]], "view">;
-  getFunction(
-    nameOrSignature: "restrictedSmartContracts"
-  ): TypedContractMethod<[], [string[]], "view">;
   getFunction(
     nameOrSignature: "revokeRole"
   ): TypedContractMethod<
@@ -848,7 +916,7 @@ export interface AccountRulesV2 extends BaseContract {
   >;
 
   filters: {
-    "AccountAdded(address,uint256,bytes32,bytes32,address)": TypedContractEvent<
+    "AccountAdded(address,uint256,bytes32,bytes32)": TypedContractEvent<
       AccountAddedEvent.InputTuple,
       AccountAddedEvent.OutputTuple,
       AccountAddedEvent.OutputObject
@@ -859,7 +927,7 @@ export interface AccountRulesV2 extends BaseContract {
       AccountAddedEvent.OutputObject
     >;
 
-    "AccountDeleted(address,uint256,address)": TypedContractEvent<
+    "AccountDeleted(address,uint256)": TypedContractEvent<
       AccountDeletedEvent.InputTuple,
       AccountDeletedEvent.OutputTuple,
       AccountDeletedEvent.OutputObject
@@ -870,7 +938,7 @@ export interface AccountRulesV2 extends BaseContract {
       AccountDeletedEvent.OutputObject
     >;
 
-    "AccountStatusUpdated(address,uint256,bool,address)": TypedContractEvent<
+    "AccountStatusUpdated(address,uint256,bool)": TypedContractEvent<
       AccountStatusUpdatedEvent.InputTuple,
       AccountStatusUpdatedEvent.OutputTuple,
       AccountStatusUpdatedEvent.OutputObject
@@ -881,7 +949,7 @@ export interface AccountRulesV2 extends BaseContract {
       AccountStatusUpdatedEvent.OutputObject
     >;
 
-    "AccountTargetAccessUpdated(address,bool,address[],address)": TypedContractEvent<
+    "AccountTargetAccessUpdated(address,bool,address[])": TypedContractEvent<
       AccountTargetAccessUpdatedEvent.InputTuple,
       AccountTargetAccessUpdatedEvent.OutputTuple,
       AccountTargetAccessUpdatedEvent.OutputObject
@@ -892,7 +960,7 @@ export interface AccountRulesV2 extends BaseContract {
       AccountTargetAccessUpdatedEvent.OutputObject
     >;
 
-    "AccountUpdated(address,uint256,bytes32,bytes32,address)": TypedContractEvent<
+    "AccountUpdated(address,uint256,bytes32,bytes32)": TypedContractEvent<
       AccountUpdatedEvent.InputTuple,
       AccountUpdatedEvent.OutputTuple,
       AccountUpdatedEvent.OutputObject
@@ -936,7 +1004,7 @@ export interface AccountRulesV2 extends BaseContract {
       RoleRevokedEvent.OutputObject
     >;
 
-    "SmartContractSenderAccessUpdated(address,bool,address[],address)": TypedContractEvent<
+    "SmartContractSenderAccessUpdated(address,bool,address[])": TypedContractEvent<
       SmartContractSenderAccessUpdatedEvent.InputTuple,
       SmartContractSenderAccessUpdatedEvent.OutputTuple,
       SmartContractSenderAccessUpdatedEvent.OutputObject

@@ -11,25 +11,18 @@ import { NodeRulesV2 } from "../../chain/@types/NodeRulesV2Impl";
 
 function NodesTable(){
     const {  orgList } = useOrganizationData();
-    const { accountRulesContract, operatorAddress } = useAccountData();
+    const { operatorData } = useAccountData();
     const { nodeRulesContract, nodeList } = useNodeData();
 
     const [toggleModalAdd, setToggleModalAdd] = useState(false);
     const [toggleModalRemove, setToggleModalRemove] = useState(false);
     const [toggleModalUpdate, setToggleModalUpdate] = useState(false);
 
-    const [accountData, setAccountData] = useState<AccountRulesV2.AccountDataStructOutput | null>(null);
     const [node, setNode] = useState<NodeRulesV2.NodeDataStructOutput | null>(null)
 
     useEffect(()=>{
-        accountRulesContract?.getAccount(operatorAddress).then(account=>{
-            setAccountData(account);
-        }).catch(exception =>{
-            // Handle do erro de conta inexistente
-            console.log(exception)
-            setAccountData(null);
-        })
-    }, [accountRulesContract, operatorAddress, nodeRulesContract])
+
+    }, [nodeRulesContract])
 
     const AddComponent = () =>{
         const nameRef = useRef<HTMLInputElement | null>( null);
@@ -204,8 +197,8 @@ function NodesTable(){
         return (
             <>
                 { 
-                    data.orgId == accountData?.orgId 
-                    && accountData?.roleId == "0x"+ConvertNameToRoleID("GLOBAL_ADMIN_ROLE")
+                    data.orgId == operatorData?.orgId 
+                    && operatorData?.roleId == "0x"+ConvertNameToRoleID("GLOBAL_ADMIN_ROLE")
                 ? 
                 <div style={{display:"flex", flexDirection:"row",gap:"4px", justifyContent:"center"}}>
                     <img width={"16px"} src="/icons/edit.png" onClick={()=> {setNode(data);setToggleModalUpdate(true)}}/>
@@ -258,7 +251,7 @@ function NodesTable(){
         }
                 
         {
-            accountData?.roleId == "0x"+ConvertNameToRoleID("GLOBAL_ADMIN_ROLE") ?
+            operatorData?.roleId == "0x"+ConvertNameToRoleID("GLOBAL_ADMIN_ROLE") ?
             <div style={{display:"flex", flexDirection:"row-reverse", gap:"10px"}}>
                 <button style={{padding:'10px'}} onClick={()=>setToggleModalAdd(true)}>
                     Criar

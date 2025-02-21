@@ -40,6 +40,9 @@ type ContextType =
   | {
       governanceContract?: Governance;
       setGovernanceContract: React.Dispatch<React.SetStateAction<Governance | undefined>>;
+
+      onUpdate: number;
+      setOnUpdate: React.Dispatch<React.SetStateAction<number>>;
     }
   | undefined;
 
@@ -59,10 +62,11 @@ const loadNodeData = (
 
 export const GovernanceProvider: React.FC<{children:any}> = props => {
   const [governanceContract, setGovernanceContract] = useState<Governance | undefined>(undefined);
+  const [onUpdate, setOnUpdate] = useState<number>(0);
 
   const value = useMemo(
-    () => ({governanceContract, setGovernanceContract }),
-    [governanceContract, setGovernanceContract]
+    () => ({governanceContract, setGovernanceContract, onUpdate, setOnUpdate}),
+    [governanceContract, setGovernanceContract, onUpdate, setOnUpdate]
   );
 
   const { signer } = useNetwork();
@@ -76,6 +80,24 @@ export const GovernanceProvider: React.FC<{children:any}> = props => {
             governanceFactory(config, signer).then(contract => {
                 setGovernanceContract(contract);
 
+                contract.on(contract.filters.ProposalCreated(), ()=>{
+                  setOnUpdate(value => value + 1)
+                })
+                contract.on(contract.filters.ProposalCanceled(), ()=>{
+                  setOnUpdate(value => value + 1)
+                })
+                contract.on(contract.filters.ProposalExecuted(), ()=>{
+                  setOnUpdate(value => value + 1)
+                })
+                contract.on(contract.filters.ProposalFinished(), ()=>{
+                  setOnUpdate(value => value + 1)
+                })
+                contract.on(contract.filters.ProposalRejected(), ()=>{
+                  setOnUpdate(value => value + 1)
+                })
+                contract.on(contract.filters.OrganizationVoted(), ()=>{
+                  setOnUpdate(value => value + 1)
+                })
             });
 
         })
@@ -92,7 +114,7 @@ export const useGovernanceData = () => {
     throw new Error('useNodeData must be used within a NodeDataProvider.');
   }
 
-  const { governanceContract, setGovernanceContract } = context;
+  const { governanceContract, setGovernanceContract, onUpdate } = context;
 
   useEffect(() => {
     loadNodeData(governanceContract);
@@ -105,6 +127,7 @@ export const useGovernanceData = () => {
 
   return {
     dataReady,
-    governanceContract
+    governanceContract,
+    onUpdate
   };
 };

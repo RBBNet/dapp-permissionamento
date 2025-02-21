@@ -1,5 +1,1 @@
-
-
-export function GetContracts(){
-    
-}
+import { AccountRules } from "../chain/ContractsABI";

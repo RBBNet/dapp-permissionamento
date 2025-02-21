@@ -12,7 +12,7 @@ import { AccountRulesV2 } from "../../chain/@types";
 import { formatOrganization } from "../../util/StringUtils";
 
 function AccountTable(){
-    const { accountRulesContract, operatorData } = useAccountData();
+    const { accountRulesContract, operatorData, onUpdate } = useAccountData();
     const { orgList } = useOrganizationData();
 
     const [toggleModalAdd, setToggleModalAdd] = useState(false);
@@ -28,7 +28,7 @@ function AccountTable(){
         }).catch(exception =>{
             console.log(exception)
         })
-    }, [accountRulesContract, operatorData])
+    }, [ onUpdate])
     
     const AddComponent = () =>{
         const addressRef = useRef<HTMLInputElement >(null);

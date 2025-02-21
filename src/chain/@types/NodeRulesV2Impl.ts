@@ -9,7 +9,6 @@ import type {
   Result,
   Interface,
   EventFragment,
-  AddressLike,
   ContractRunner,
   ContractMethod,
   Listener,
@@ -215,19 +214,22 @@ export namespace NodeAddedEvent {
     enodeHigh: BytesLike,
     enodeLow: BytesLike,
     orgId: BigNumberish,
-    admin: AddressLike
+    nodeType: BigNumberish,
+    name: string
   ];
   export type OutputTuple = [
     enodeHigh: string,
     enodeLow: string,
     orgId: bigint,
-    admin: string
+    nodeType: bigint,
+    name: string
   ];
   export interface OutputObject {
     enodeHigh: string;
     enodeLow: string;
     orgId: bigint;
-    admin: string;
+    nodeType: bigint;
+    name: string;
   }
   export type Event = TypedContractEvent<InputTuple, OutputTuple, OutputObject>;
   export type Filter = TypedDeferredTopicFilter<Event>;
@@ -239,20 +241,17 @@ export namespace NodeDeletedEvent {
   export type InputTuple = [
     enodeHigh: BytesLike,
     enodeLow: BytesLike,
-    orgId: BigNumberish,
-    admin: AddressLike
+    orgId: BigNumberish
   ];
   export type OutputTuple = [
     enodeHigh: string,
     enodeLow: string,
-    orgId: bigint,
-    admin: string
+    orgId: bigint
   ];
   export interface OutputObject {
     enodeHigh: string;
     enodeLow: string;
     orgId: bigint;
-    admin: string;
   }
   export type Event = TypedContractEvent<InputTuple, OutputTuple, OutputObject>;
   export type Filter = TypedDeferredTopicFilter<Event>;
@@ -265,22 +264,19 @@ export namespace NodeStatusUpdatedEvent {
     enodeHigh: BytesLike,
     enodeLow: BytesLike,
     orgId: BigNumberish,
-    active: boolean,
-    admin: AddressLike
+    active: boolean
   ];
   export type OutputTuple = [
     enodeHigh: string,
     enodeLow: string,
     orgId: bigint,
-    active: boolean,
-    admin: string
+    active: boolean
   ];
   export interface OutputObject {
     enodeHigh: string;
     enodeLow: string;
     orgId: bigint;
     active: boolean;
-    admin: string;
   }
   export type Event = TypedContractEvent<InputTuple, OutputTuple, OutputObject>;
   export type Filter = TypedDeferredTopicFilter<Event>;
@@ -293,19 +289,22 @@ export namespace NodeUpdatedEvent {
     enodeHigh: BytesLike,
     enodeLow: BytesLike,
     orgId: BigNumberish,
-    admin: AddressLike
+    nodeType: BigNumberish,
+    name: string
   ];
   export type OutputTuple = [
     enodeHigh: string,
     enodeLow: string,
     orgId: bigint,
-    admin: string
+    nodeType: bigint,
+    name: string
   ];
   export interface OutputObject {
     enodeHigh: string;
     enodeLow: string;
     orgId: bigint;
-    admin: string;
+    nodeType: bigint;
+    name: string;
   }
   export type Event = TypedContractEvent<InputTuple, OutputTuple, OutputObject>;
   export type Filter = TypedDeferredTopicFilter<Event>;
@@ -432,13 +431,13 @@ export interface NodeRulesV2Impl extends BaseContract {
   >;
 
   getNodes: TypedContractMethod<
-    [page: BigNumberish, pageSize: BigNumberish],
+    [pageNumber: BigNumberish, pageSize: BigNumberish],
     [NodeRulesV2.NodeDataStructOutput[]],
     "view"
   >;
 
   getNodesByOrg: TypedContractMethod<
-    [orgId: BigNumberish, page: BigNumberish, pageSize: BigNumberish],
+    [orgId: BigNumberish, pageNumber: BigNumberish, pageSize: BigNumberish],
     [NodeRulesV2.NodeDataStructOutput[]],
     "view"
   >;
@@ -567,14 +566,14 @@ export interface NodeRulesV2Impl extends BaseContract {
   getFunction(
     nameOrSignature: "getNodes"
   ): TypedContractMethod<
-    [page: BigNumberish, pageSize: BigNumberish],
+    [pageNumber: BigNumberish, pageSize: BigNumberish],
     [NodeRulesV2.NodeDataStructOutput[]],
     "view"
   >;
   getFunction(
     nameOrSignature: "getNodesByOrg"
   ): TypedContractMethod<
-    [orgId: BigNumberish, page: BigNumberish, pageSize: BigNumberish],
+    [orgId: BigNumberish, pageNumber: BigNumberish, pageSize: BigNumberish],
     [NodeRulesV2.NodeDataStructOutput[]],
     "view"
   >;
@@ -644,7 +643,7 @@ export interface NodeRulesV2Impl extends BaseContract {
   >;
 
   filters: {
-    "NodeAdded(bytes32,bytes32,uint256,address)": TypedContractEvent<
+    "NodeAdded(bytes32,bytes32,uint256,uint8,string)": TypedContractEvent<
       NodeAddedEvent.InputTuple,
       NodeAddedEvent.OutputTuple,
       NodeAddedEvent.OutputObject
@@ -655,7 +654,7 @@ export interface NodeRulesV2Impl extends BaseContract {
       NodeAddedEvent.OutputObject
     >;
 
-    "NodeDeleted(bytes32,bytes32,uint256,address)": TypedContractEvent<
+    "NodeDeleted(bytes32,bytes32,uint256)": TypedContractEvent<
       NodeDeletedEvent.InputTuple,
       NodeDeletedEvent.OutputTuple,
       NodeDeletedEvent.OutputObject
@@ -666,7 +665,7 @@ export interface NodeRulesV2Impl extends BaseContract {
       NodeDeletedEvent.OutputObject
     >;
 
-    "NodeStatusUpdated(bytes32,bytes32,uint256,bool,address)": TypedContractEvent<
+    "NodeStatusUpdated(bytes32,bytes32,uint256,bool)": TypedContractEvent<
       NodeStatusUpdatedEvent.InputTuple,
       NodeStatusUpdatedEvent.OutputTuple,
       NodeStatusUpdatedEvent.OutputObject
@@ -677,7 +676,7 @@ export interface NodeRulesV2Impl extends BaseContract {
       NodeStatusUpdatedEvent.OutputObject
     >;
 
-    "NodeUpdated(bytes32,bytes32,uint256,address)": TypedContractEvent<
+    "NodeUpdated(bytes32,bytes32,uint256,uint8,string)": TypedContractEvent<
       NodeUpdatedEvent.InputTuple,
       NodeUpdatedEvent.OutputTuple,
       NodeUpdatedEvent.OutputObject

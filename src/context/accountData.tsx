@@ -11,8 +11,11 @@ type Props = {
 
 type ContextType =
   | {
-      operatorData: AccountRulesV2.AccountDataStructOutput;
-      setOperatorData: React.Dispatch<React.SetStateAction<AccountRulesV2.AccountDataStructOutput>>;
+      onUpdate: number;
+      setOnUpdate: React.Dispatch<React.SetStateAction<number>>;
+
+      operatorData: AccountRulesV2.AccountDataStructOutput | null | undefined;
+      setOperatorData: React.Dispatch<React.SetStateAction<AccountRulesV2.AccountDataStructOutput | null | undefined>>;
 
       operatorAddress: string;
       setOperatorAddress: React.Dispatch<React.SetStateAction<string>>;
@@ -26,18 +29,22 @@ const AccountDataContext = createContext<ContextType>(undefined);
 
 const loadAccountData = (
   accountRulesContract: AccountRulesV2Impl | undefined,
-  setOperatorData: React.Dispatch<React.SetStateAction<AccountRulesV2.AccountDataStructOutput>>,
+  setOperatorData: React.Dispatch<React.SetStateAction<AccountRulesV2.AccountDataStructOutput | null | undefined>>,
   operatorAddress: string
 ) => {
-  // console.log("Carregando dados")
 
   if(operatorAddress == undefined){
     console.log("Signer é nulo")
     return
   }
 
-  accountRulesContract?.getAccount(operatorAddress).then(account => setOperatorData(account)).catch(err => console.error(err))
 
+  accountRulesContract?.getAccount(operatorAddress)
+    .then(account => setOperatorData(account))
+    .catch(err => { 
+      setOperatorData(undefined)
+      console.error(err)
+    })
   return;
 };
 
@@ -45,8 +52,11 @@ export const AccountDataProvider: React.FC<Props> = props => {
   const [operatorData, setOperatorData] = useState<AccountRulesV2.AccountDataStructOutput | null>();
   const [accountRulesContract, setAccountRulesContract] = useState<AccountRulesV2Impl | undefined>(undefined);
   const [operatorAddress, setOperatorAddress] = useState<string | undefined>(undefined);
+  const [onUpdate, setOnUpdate] = useState<number>(0);
   const value = useMemo(
     () => ({
+      onUpdate,
+      setOnUpdate,
       operatorData,
       setOperatorData,
       accountRulesContract,
@@ -54,11 +64,11 @@ export const AccountDataProvider: React.FC<Props> = props => {
       operatorAddress,
       setOperatorAddress
     }),
-    [operatorData, setOperatorData, accountRulesContract, setAccountRulesContract, operatorAddress, setOperatorAddress]
+    [onUpdate, setOnUpdate, operatorData, setOperatorData, accountRulesContract, setAccountRulesContract, operatorAddress, setOperatorAddress]
   );
   const { signer } = useNetwork();
   const config = configPromise;
-
+  // console.log(signer)
   useEffect(() => {
     if (signer === undefined) {
 
@@ -73,23 +83,30 @@ export const AccountDataProvider: React.FC<Props> = props => {
         config.then(config =>{
           accountRulesV2Factory(config, signer).then(contract => {
             setAccountRulesContract(contract);
-            const filters = [
-              contract.filters.AccountAdded,
-              contract.filters.AccountUpdated,
-              contract.filters.AccountDeleted,
-              contract.filters.AccountStatusUpdated
-            ];
+
             contract.removeAllListeners(contract.filters.AccountAdded);
             contract.removeAllListeners(contract.filters.AccountUpdated);
             contract.removeAllListeners(contract.filters.AccountDeleted);
             contract.removeAllListeners(contract.filters.AccountStatusUpdated);
 
-            filters.forEach((filter) =>{
+            contract.on(contract.filters.AccountAdded(), (event) => {
+              loadAccountData(contract, setOperatorData, address)
+              setOnUpdate(value => value + 1)
 
-              contract.on(filter.call(undefined), (event) => {
-                loadAccountData(contract, setOperatorData, operatorAddress)
-              });
-            })
+            });
+            contract.on(contract.filters.AccountUpdated(), (event) => {
+              loadAccountData(contract, setOperatorData, address)
+              setOnUpdate(value => value + 1)
+            });
+            contract.on(contract.filters.AccountStatusUpdated(), (event) => {
+              loadAccountData(contract, setOperatorData, address)
+              setOnUpdate(value => value + 1)
+            });
+            contract.on(contract.filters.AccountDeleted(), (event) => {
+              loadAccountData(contract, setOperatorData, address)
+              setOnUpdate(value => value + 1)
+            });
+
           });
           })
         }
@@ -107,7 +124,7 @@ export const useAccountData = () => {
     throw new Error('useAccountData must be used within an AccountDataProvider.');
   }
 
-  const { operatorData, operatorAddress, setOperatorData, accountRulesContract } = context;
+  const { operatorData, operatorAddress, setOperatorData, accountRulesContract, onUpdate } = context;
 
   useEffect(() => {
     loadAccountData(accountRulesContract, setOperatorData, operatorAddress);
@@ -119,8 +136,10 @@ export const useAccountData = () => {
   }, [accountRulesContract]);
 
   return {
+    onUpdate,
     dataReady,
     accountRulesContract,
-    operatorData
+    operatorData,
+    operatorAddress
   };
 };

@@ -15,7 +15,7 @@ type Props = {
 
 function Sidebar({ currentPage, updateContent }: Props) {
 
-    const { operatorData, accountRulesContract } = useAccountData();
+    const { operatorData, accountRulesContract, operatorAddress } = useAccountData();
     const { organizationContract } = useOrganizationData()
     const [org, setOrg] = useState('');
     const [roleId, setRoleId] = useState('');
@@ -67,7 +67,7 @@ function Sidebar({ currentPage, updateContent }: Props) {
                             operatorData != undefined ?
                                 operatorData?.account.substring(0, 12) + "..." + operatorData?.account.substring(operatorData?.account.length -4,operatorData?.account.length)
                             : 
-                                ""
+                                operatorAddress != undefined ? operatorAddress.substring(0, 12) + "..." + operatorAddress.substring(operatorAddress.length -4,operatorAddress.length) : ""
                         }
                     </span>
                 </div>

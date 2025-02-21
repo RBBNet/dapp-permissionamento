@@ -192,12 +192,6 @@ const _abi = [
         name: "dataHash",
         type: "bytes32",
       },
-      {
-        indexed: false,
-        internalType: "address",
-        name: "admin",
-        type: "address",
-      },
     ],
     name: "AccountAdded",
     type: "event",
@@ -216,12 +210,6 @@ const _abi = [
         internalType: "uint256",
         name: "orgId",
         type: "uint256",
-      },
-      {
-        indexed: false,
-        internalType: "address",
-        name: "admin",
-        type: "address",
       },
     ],
     name: "AccountDeleted",
@@ -248,12 +236,6 @@ const _abi = [
         name: "active",
         type: "bool",
       },
-      {
-        indexed: false,
-        internalType: "address",
-        name: "admin",
-        type: "address",
-      },
     ],
     name: "AccountStatusUpdated",
     type: "event",
@@ -278,12 +260,6 @@ const _abi = [
         internalType: "address[]",
         name: "allowedTargets",
         type: "address[]",
-      },
-      {
-        indexed: false,
-        internalType: "address",
-        name: "admin",
-        type: "address",
       },
     ],
     name: "AccountTargetAccessUpdated",
@@ -315,12 +291,6 @@ const _abi = [
         internalType: "bytes32",
         name: "dataHash",
         type: "bytes32",
-      },
-      {
-        indexed: false,
-        internalType: "address",
-        name: "admin",
-        type: "address",
       },
     ],
     name: "AccountUpdated",
@@ -421,12 +391,6 @@ const _abi = [
         internalType: "address[]",
         name: "allowedSenders",
         type: "address[]",
-      },
-      {
-        indexed: false,
-        internalType: "address",
-        name: "admin",
-        type: "address",
       },
     ],
     name: "SmartContractSenderAccessUpdated",
@@ -558,8 +522,32 @@ const _abi = [
   {
     inputs: [
       {
+        internalType: "address",
+        name: "account",
+        type: "address",
+      },
+    ],
+    name: "getAccountTargetAccess",
+    outputs: [
+      {
+        internalType: "bool",
+        name: "restricted",
+        type: "bool",
+      },
+      {
+        internalType: "address[]",
+        name: "",
+        type: "address[]",
+      },
+    ],
+    stateMutability: "view",
+    type: "function",
+  },
+  {
+    inputs: [
+      {
         internalType: "uint256",
-        name: "page",
+        name: "pageNumber",
         type: "uint256",
       },
       {
@@ -615,7 +603,7 @@ const _abi = [
       },
       {
         internalType: "uint256",
-        name: "page",
+        name: "pageNumber",
         type: "uint256",
       },
       {
@@ -695,6 +683,80 @@ const _abi = [
     type: "function",
   },
   {
+    inputs: [],
+    name: "getNumberOfRestrictedAccounts",
+    outputs: [
+      {
+        internalType: "uint256",
+        name: "",
+        type: "uint256",
+      },
+    ],
+    stateMutability: "view",
+    type: "function",
+  },
+  {
+    inputs: [],
+    name: "getNumberOfRestrictedSmartContracts",
+    outputs: [
+      {
+        internalType: "uint256",
+        name: "",
+        type: "uint256",
+      },
+    ],
+    stateMutability: "view",
+    type: "function",
+  },
+  {
+    inputs: [
+      {
+        internalType: "uint256",
+        name: "pageNumber",
+        type: "uint256",
+      },
+      {
+        internalType: "uint256",
+        name: "pageSize",
+        type: "uint256",
+      },
+    ],
+    name: "getRestrictedAccounts",
+    outputs: [
+      {
+        internalType: "address[]",
+        name: "",
+        type: "address[]",
+      },
+    ],
+    stateMutability: "view",
+    type: "function",
+  },
+  {
+    inputs: [
+      {
+        internalType: "uint256",
+        name: "pageNumber",
+        type: "uint256",
+      },
+      {
+        internalType: "uint256",
+        name: "pageSize",
+        type: "uint256",
+      },
+    ],
+    name: "getRestrictedSmartContracts",
+    outputs: [
+      {
+        internalType: "address[]",
+        name: "",
+        type: "address[]",
+      },
+    ],
+    stateMutability: "view",
+    type: "function",
+  },
+  {
     inputs: [
       {
         internalType: "bytes32",
@@ -708,6 +770,30 @@ const _abi = [
         internalType: "bytes32",
         name: "",
         type: "bytes32",
+      },
+    ],
+    stateMutability: "view",
+    type: "function",
+  },
+  {
+    inputs: [
+      {
+        internalType: "address",
+        name: "smartContract",
+        type: "address",
+      },
+    ],
+    name: "getSmartContractSenderAccess",
+    outputs: [
+      {
+        internalType: "bool",
+        name: "restricted",
+        type: "bool",
+      },
+      {
+        internalType: "address[]",
+        name: "",
+        type: "address[]",
       },
     ],
     stateMutability: "view",
@@ -790,32 +876,6 @@ const _abi = [
     name: "renounceRole",
     outputs: [],
     stateMutability: "nonpayable",
-    type: "function",
-  },
-  {
-    inputs: [],
-    name: "restrictedAccounts",
-    outputs: [
-      {
-        internalType: "address[]",
-        name: "",
-        type: "address[]",
-      },
-    ],
-    stateMutability: "view",
-    type: "function",
-  },
-  {
-    inputs: [],
-    name: "restrictedSmartContracts",
-    outputs: [
-      {
-        internalType: "address[]",
-        name: "",
-        type: "address[]",
-      },
-    ],
-    stateMutability: "view",
     type: "function",
   },
   {

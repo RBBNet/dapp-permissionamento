@@ -185,12 +185,6 @@
           "internalType": "bytes32",
           "name": "dataHash",
           "type": "bytes32"
-        },
-        {
-          "indexed": false,
-          "internalType": "address",
-          "name": "admin",
-          "type": "address"
         }
       ],
       "name": "AccountAdded",
@@ -210,12 +204,6 @@
           "internalType": "uint256",
           "name": "orgId",
           "type": "uint256"
-        },
-        {
-          "indexed": false,
-          "internalType": "address",
-          "name": "admin",
-          "type": "address"
         }
       ],
       "name": "AccountDeleted",
@@ -241,12 +229,6 @@
           "internalType": "bool",
           "name": "active",
           "type": "bool"
-        },
-        {
-          "indexed": false,
-          "internalType": "address",
-          "name": "admin",
-          "type": "address"
         }
       ],
       "name": "AccountStatusUpdated",
@@ -272,12 +254,6 @@
           "internalType": "address[]",
           "name": "allowedTargets",
           "type": "address[]"
-        },
-        {
-          "indexed": false,
-          "internalType": "address",
-          "name": "admin",
-          "type": "address"
         }
       ],
       "name": "AccountTargetAccessUpdated",
@@ -309,12 +285,6 @@
           "internalType": "bytes32",
           "name": "dataHash",
           "type": "bytes32"
-        },
-        {
-          "indexed": false,
-          "internalType": "address",
-          "name": "admin",
-          "type": "address"
         }
       ],
       "name": "AccountUpdated",
@@ -415,12 +385,6 @@
           "internalType": "address[]",
           "name": "allowedSenders",
           "type": "address[]"
-        },
-        {
-          "indexed": false,
-          "internalType": "address",
-          "name": "admin",
-          "type": "address"
         }
       ],
       "name": "SmartContractSenderAccessUpdated",
@@ -552,8 +516,32 @@
     {
       "inputs": [
         {
+          "internalType": "address",
+          "name": "account",
+          "type": "address"
+        }
+      ],
+      "name": "getAccountTargetAccess",
+      "outputs": [
+        {
+          "internalType": "bool",
+          "name": "restricted",
+          "type": "bool"
+        },
+        {
+          "internalType": "address[]",
+          "name": "",
+          "type": "address[]"
+        }
+      ],
+      "stateMutability": "view",
+      "type": "function"
+    },
+    {
+      "inputs": [
+        {
           "internalType": "uint256",
-          "name": "page",
+          "name": "pageNumber",
           "type": "uint256"
         },
         {
@@ -609,7 +597,7 @@
         },
         {
           "internalType": "uint256",
-          "name": "page",
+          "name": "pageNumber",
           "type": "uint256"
         },
         {
@@ -689,6 +677,80 @@
       "type": "function"
     },
     {
+      "inputs": [],
+      "name": "getNumberOfRestrictedAccounts",
+      "outputs": [
+        {
+          "internalType": "uint256",
+          "name": "",
+          "type": "uint256"
+        }
+      ],
+      "stateMutability": "view",
+      "type": "function"
+    },
+    {
+      "inputs": [],
+      "name": "getNumberOfRestrictedSmartContracts",
+      "outputs": [
+        {
+          "internalType": "uint256",
+          "name": "",
+          "type": "uint256"
+        }
+      ],
+      "stateMutability": "view",
+      "type": "function"
+    },
+    {
+      "inputs": [
+        {
+          "internalType": "uint256",
+          "name": "pageNumber",
+          "type": "uint256"
+        },
+        {
+          "internalType": "uint256",
+          "name": "pageSize",
+          "type": "uint256"
+        }
+      ],
+      "name": "getRestrictedAccounts",
+      "outputs": [
+        {
+          "internalType": "address[]",
+          "name": "",
+          "type": "address[]"
+        }
+      ],
+      "stateMutability": "view",
+      "type": "function"
+    },
+    {
+      "inputs": [
+        {
+          "internalType": "uint256",
+          "name": "pageNumber",
+          "type": "uint256"
+        },
+        {
+          "internalType": "uint256",
+          "name": "pageSize",
+          "type": "uint256"
+        }
+      ],
+      "name": "getRestrictedSmartContracts",
+      "outputs": [
+        {
+          "internalType": "address[]",
+          "name": "",
+          "type": "address[]"
+        }
+      ],
+      "stateMutability": "view",
+      "type": "function"
+    },
+    {
       "inputs": [
         {
           "internalType": "bytes32",
@@ -702,6 +764,30 @@
           "internalType": "bytes32",
           "name": "",
           "type": "bytes32"
+        }
+      ],
+      "stateMutability": "view",
+      "type": "function"
+    },
+    {
+      "inputs": [
+        {
+          "internalType": "address",
+          "name": "smartContract",
+          "type": "address"
+        }
+      ],
+      "name": "getSmartContractSenderAccess",
+      "outputs": [
+        {
+          "internalType": "bool",
+          "name": "restricted",
+          "type": "bool"
+        },
+        {
+          "internalType": "address[]",
+          "name": "",
+          "type": "address[]"
         }
       ],
       "stateMutability": "view",
@@ -784,32 +870,6 @@
       "name": "renounceRole",
       "outputs": [],
       "stateMutability": "nonpayable",
-      "type": "function"
-    },
-    {
-      "inputs": [],
-      "name": "restrictedAccounts",
-      "outputs": [
-        {
-          "internalType": "address[]",
-          "name": "",
-          "type": "address[]"
-        }
-      ],
-      "stateMutability": "view",
-      "type": "function"
-    },
-    {
-      "inputs": [],
-      "name": "restrictedSmartContracts",
-      "outputs": [
-        {
-          "internalType": "address[]",
-          "name": "",
-          "type": "address[]"
-        }
-      ],
-      "stateMutability": "view",
       "type": "function"
     },
     {

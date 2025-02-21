@@ -4,8 +4,11 @@
 export { AccountIngress__factory } from "./AccountIngress__factory";
 export { AccountRulesV2__factory } from "./AccountRulesV2__factory";
 export { AccountRulesV2Impl__factory } from "./AccountRulesV2Impl__factory";
+export { AdminProxy__factory } from "./AdminProxy__factory";
+export { Governable__factory } from "./Governable__factory";
 export { Governance__factory } from "./Governance__factory";
 export { Ingress__factory } from "./Ingress__factory";
 export { NodeIngress__factory } from "./NodeIngress__factory";
 export { NodeRulesV2Impl__factory } from "./NodeRulesV2Impl__factory";
 export { OrganizationImpl__factory } from "./OrganizationImpl__factory";
+export { Pagination__factory } from "./Pagination__factory";

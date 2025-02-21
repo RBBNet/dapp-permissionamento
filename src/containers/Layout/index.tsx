@@ -32,7 +32,6 @@ function Layout(){
 
   useEffect(()=>{
     updateContent('organizacao')
-
   }, [])
   
   return (
