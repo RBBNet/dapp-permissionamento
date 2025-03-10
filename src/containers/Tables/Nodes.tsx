@@ -5,7 +5,7 @@ import { useAccountData } from "../../context/accountData";
 import { useNodeData } from "../../context/nodesData";
 import { useOrganizationData } from "../../context/organizationData";
 import { ConvertNameToRoleID, ConvertNodeType, formatOrganization } from "../../util/StringUtils"
-import { Fill, Modal } from "../Modal";
+import { Fill, Modal } from "../../components/Modal";
 import { AccountRulesV2 } from "../../chain/@types";
 import { NodeRulesV2 } from "../../chain/@types/NodeRulesV2Impl";
 

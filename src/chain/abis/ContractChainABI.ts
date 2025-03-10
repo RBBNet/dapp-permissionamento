@@ -1,13 +1,15 @@
-import { AbiItem  } from 'web3-utils';
+import * as ContractsABI from "../ContractsABI";
+import { ExtendedAbiItem } from '../@types/component/ExtendedAbiItem';
+
 
 export default class ContractChainABI{
     address: string;
-    abi: AbiItem[];
+    abi: ExtendedAbiItem[];
     name: string;
 
     constructor(address: string, abi: any){
         this.address = address;
-        this.abi = abi as AbiItem[];
+        this.abi = abi as ExtendedAbiItem[];
         // this.abi[0].inputs
         this.name = abi.contractName;
     }
@@ -23,7 +25,7 @@ export default class ContractChainABI{
 
     getPublicMethods(){
         
-        let methods: AbiItem[] = []
+        let methods: ExtendedAbiItem[] = []
         this.abi.forEach(element =>{
             if (element.type === 'function' && element.stateMutability && element.stateMutability !== 'view') {
                 // Teste para filtrar 

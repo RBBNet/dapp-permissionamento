@@ -26,7 +26,7 @@ import type {
 export declare namespace Governance {
   export type ProposalDataStruct = {
     id: BigNumberish;
-    creator: AddressLike;
+    proponentOrgId: BigNumberish;
     targets: AddressLike[];
     calldatas: BytesLike[];
     blocksDuration: BigNumberish;
@@ -41,7 +41,7 @@ export declare namespace Governance {
 
   export type ProposalDataStructOutput = [
     id: bigint,
-    creator: string,
+    proponentOrgId: bigint,
     targets: string[],
     calldatas: string[],
     blocksDuration: bigint,
@@ -54,7 +54,7 @@ export declare namespace Governance {
     cancelationReason: string
   ] & {
     id: bigint;
-    creator: string;
+    proponentOrgId: bigint;
     targets: string[];
     calldatas: string[];
     blocksDuration: bigint;
@@ -72,6 +72,7 @@ export interface GovernanceInterface extends Interface {
   getFunction(
     nameOrSignature:
       | "accounts"
+      | "admins"
       | "cancelProposal"
       | "castVote"
       | "createProposal"
@@ -96,6 +97,7 @@ export interface GovernanceInterface extends Interface {
   ): EventFragment;
 
   encodeFunctionData(functionFragment: "accounts", values?: undefined): string;
+  encodeFunctionData(functionFragment: "admins", values?: undefined): string;
   encodeFunctionData(
     functionFragment: "cancelProposal",
     values: [BigNumberish, string]
@@ -135,6 +137,7 @@ export interface GovernanceInterface extends Interface {
   ): string;
 
   decodeFunctionResult(functionFragment: "accounts", data: BytesLike): Result;
+  decodeFunctionResult(functionFragment: "admins", data: BytesLike): Result;
   decodeFunctionResult(
     functionFragment: "cancelProposal",
     data: BytesLike
@@ -203,10 +206,11 @@ export namespace ProposalApprovedEvent {
 }
 
 export namespace ProposalCanceledEvent {
-  export type InputTuple = [proposalId: BigNumberish];
-  export type OutputTuple = [proposalId: bigint];
+  export type InputTuple = [proposalId: BigNumberish, reason: string];
+  export type OutputTuple = [proposalId: bigint, reason: string];
   export interface OutputObject {
     proposalId: bigint;
+    reason: string;
   }
   export type Event = TypedContractEvent<InputTuple, OutputTuple, OutputObject>;
   export type Filter = TypedDeferredTopicFilter<Event>;
@@ -215,10 +219,26 @@ export namespace ProposalCanceledEvent {
 }
 
 export namespace ProposalCreatedEvent {
-  export type InputTuple = [proposalId: BigNumberish];
-  export type OutputTuple = [proposalId: bigint];
+  export type InputTuple = [
+    proposalI: BigNumberish,
+    targets: AddressLike[],
+    calldatas: BytesLike[],
+    blocksDuration: BigNumberish,
+    description: string
+  ];
+  export type OutputTuple = [
+    proposalI: bigint,
+    targets: string[],
+    calldatas: string[],
+    blocksDuration: bigint,
+    description: string
+  ];
   export interface OutputObject {
-    proposalId: bigint;
+    proposalI: bigint;
+    targets: string[];
+    calldatas: string[];
+    blocksDuration: bigint;
+    description: string;
   }
   export type Event = TypedContractEvent<InputTuple, OutputTuple, OutputObject>;
   export type Filter = TypedDeferredTopicFilter<Event>;
@@ -307,6 +327,8 @@ export interface Governance extends BaseContract {
 
   accounts: TypedContractMethod<[], [string], "view">;
 
+  admins: TypedContractMethod<[], [string], "view">;
+
   cancelProposal: TypedContractMethod<
     [proposalId: BigNumberish, reason: string],
     [void],
@@ -357,9 +379,9 @@ export interface Governance extends BaseContract {
   proposals: TypedContractMethod<
     [arg0: BigNumberish],
     [
-      [bigint, string, bigint, string, bigint, bigint, bigint, string] & {
+      [bigint, bigint, bigint, string, bigint, bigint, bigint, string] & {
         id: bigint;
-        creator: string;
+        proponentOrgId: bigint;
         blocksDuration: bigint;
         description: string;
         creationBlock: bigint;
@@ -377,6 +399,9 @@ export interface Governance extends BaseContract {
 
   getFunction(
     nameOrSignature: "accounts"
+  ): TypedContractMethod<[], [string], "view">;
+  getFunction(
+    nameOrSignature: "admins"
   ): TypedContractMethod<[], [string], "view">;
   getFunction(
     nameOrSignature: "cancelProposal"
@@ -435,9 +460,9 @@ export interface Governance extends BaseContract {
   ): TypedContractMethod<
     [arg0: BigNumberish],
     [
-      [bigint, string, bigint, string, bigint, bigint, bigint, string] & {
+      [bigint, bigint, bigint, string, bigint, bigint, bigint, string] & {
         id: bigint;
-        creator: string;
+        proponentOrgId: bigint;
         blocksDuration: bigint;
         description: string;
         creationBlock: bigint;
@@ -522,7 +547,7 @@ export interface Governance extends BaseContract {
       ProposalApprovedEvent.OutputObject
     >;
 
-    "ProposalCanceled(uint256)": TypedContractEvent<
+    "ProposalCanceled(uint256,string)": TypedContractEvent<
       ProposalCanceledEvent.InputTuple,
       ProposalCanceledEvent.OutputTuple,
       ProposalCanceledEvent.OutputObject
@@ -533,7 +558,7 @@ export interface Governance extends BaseContract {
       ProposalCanceledEvent.OutputObject
     >;
 
-    "ProposalCreated(uint256)": TypedContractEvent<
+    "ProposalCreated(uint256,address[],bytes[],uint256,string)": TypedContractEvent<
       ProposalCreatedEvent.InputTuple,
       ProposalCreatedEvent.OutputTuple,
       ProposalCreatedEvent.OutputObject

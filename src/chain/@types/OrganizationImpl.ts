@@ -130,10 +130,16 @@ export interface OrganizationImplInterface extends Interface {
 }
 
 export namespace OrganizationAddedEvent {
-  export type InputTuple = [orgId: BigNumberish];
-  export type OutputTuple = [orgId: bigint];
+  export type InputTuple = [
+    orgId: BigNumberish,
+    name: string,
+    canVote: boolean
+  ];
+  export type OutputTuple = [orgId: bigint, name: string, canVote: boolean];
   export interface OutputObject {
     orgId: bigint;
+    name: string;
+    canVote: boolean;
   }
   export type Event = TypedContractEvent<InputTuple, OutputTuple, OutputObject>;
   export type Filter = TypedDeferredTopicFilter<Event>;
@@ -154,10 +160,16 @@ export namespace OrganizationDeletedEvent {
 }
 
 export namespace OrganizationUpdatedEvent {
-  export type InputTuple = [orgId: BigNumberish];
-  export type OutputTuple = [orgId: bigint];
+  export type InputTuple = [
+    orgId: BigNumberish,
+    name: string,
+    canVote: boolean
+  ];
+  export type OutputTuple = [orgId: bigint, name: string, canVote: boolean];
   export interface OutputObject {
     orgId: bigint;
+    name: string;
+    canVote: boolean;
   }
   export type Event = TypedContractEvent<InputTuple, OutputTuple, OutputObject>;
   export type Filter = TypedDeferredTopicFilter<Event>;
@@ -338,7 +350,7 @@ export interface OrganizationImpl extends BaseContract {
   >;
 
   filters: {
-    "OrganizationAdded(uint256)": TypedContractEvent<
+    "OrganizationAdded(uint256,string,bool)": TypedContractEvent<
       OrganizationAddedEvent.InputTuple,
       OrganizationAddedEvent.OutputTuple,
       OrganizationAddedEvent.OutputObject
@@ -360,7 +372,7 @@ export interface OrganizationImpl extends BaseContract {
       OrganizationDeletedEvent.OutputObject
     >;
 
-    "OrganizationUpdated(uint256)": TypedContractEvent<
+    "OrganizationUpdated(uint256,string,bool)": TypedContractEvent<
       OrganizationUpdatedEvent.InputTuple,
       OrganizationUpdatedEvent.OutputTuple,
       OrganizationUpdatedEvent.OutputObject

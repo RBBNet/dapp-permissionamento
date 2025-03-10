@@ -2,7 +2,7 @@
 import Table from "../../components/Table";
 import { useAccountData } from "../../context/accountData";
 import { ConvertNameToRoleID, ConvertRoleID } from "../../util/StringUtils"
-import {Modal, Fill} from "../../containers/Modal/";
+import {Modal, Fill} from "../../components/Modal";
 import { useEffect, useRef, useState } from "react";
 
 import { ethers } from "ethers";

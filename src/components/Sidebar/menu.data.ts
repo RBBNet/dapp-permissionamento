@@ -22,14 +22,14 @@ const SideBarData: Record<string, SideBarItem> = {
         path: PathUtil.Governanca.DEFAULT,
         icon: '',
     },
-    'Configurações': {
-        path: PathUtil.Configuracoes.DEFAULT,
-        icon: '',
-    },
-    'Está pagina não existe': {
-        path: 'opa',
-        icon: '',
-    },
+    // 'Configurações': {
+    //     path: PathUtil.Configuracoes.DEFAULT,
+    //     icon: '',
+    // },
+    // 'Está pagina não existe': {
+    //     path: 'opa',
+    //     icon: '',
+    // },
 };
 
 export default SideBarData;

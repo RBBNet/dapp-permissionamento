@@ -5,6 +5,7 @@ let provider:  ethers.JsonRpcSigner | Promise<ethers.JsonRpcSigner> | undefined 
 let web3: Web3 | undefined = undefined;
 declare let window: any;
 
+
 const web3Factory = async () =>{
     if(web3) return web3;
 
