@@ -65,7 +65,9 @@ Na parte superior da tabela, há dois botões azuis:
 1. Acesse a tela "Nós" pelo menu lateral.
 1. Verifique a tabela para visualizar todos os nós listados, incluindo nome, organização, tipo e status.
 
-**5.2. Editar um Nó![](telas/Aspose.Words.e01d8447-55e1-404d-9b61-177513add91f.002.png)**
+**5.2. Editar um Nó
+
+![](telas/Aspose.Words.e01d8447-55e1-404d-9b61-177513add91f.002.png)**
 
 1. Localize o nó desejado na tabela.
 1. Clique no ícone de edição (lápis) na coluna "Ações".
@@ -99,7 +101,9 @@ Em caso de dúvidas ou problemas ao usar a tela "Nós", consulte a seção de su
 
 
 
-**Tela "Organizações"![](telas/Aspose.Words.e01d8447-55e1-404d-9b61-177513add91f.005.png)**
+**Tela "Organizações"
+
+![](telas/Aspose.Words.e01d8447-55e1-404d-9b61-177513add91f.005.png)**
 
 **1. Descrição**
 
@@ -160,7 +164,9 @@ Em caso de dúvidas ou problemas ao usar a tela "Organizações", consulte a se�
 
 
 
-**Tela "Governança"![](telas/Aspose.Words.e01d8447-55e1-404d-9b61-177513add91f.006.png)**
+**Tela "Governança"
+
+![](telas/Aspose.Words.e01d8447-55e1-404d-9b61-177513add91f.006.png)**
 
 **1. Descrição**
 
@@ -211,7 +217,9 @@ Na parte superior da tabela, há um botão azul:
 1. Acesse a tela "Governança" pelo menu lateral.
 1. Verifique a tabela para visualizar todas as propostas listadas, incluindo ID, autor, descrição, tempo restante e status.
 
-**5.2. Criar uma Nova Proposta![](telas/Aspose.Words.e01d8447-55e1-404d-9b61-177513add91f.007.png)**
+**5.2. Criar uma Nova Proposta
+
+![](telas/Aspose.Words.e01d8447-55e1-404d-9b61-177513add91f.007.png)**
 
 1. Clique no botão "Criar proposta" na parte superior da tabela.
 1. Preencha os campos solicitados (ID, descrição, autor, etc.) em uma tela ou formulário subsequente.
