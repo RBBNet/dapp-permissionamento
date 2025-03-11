@@ -1,4 +1,6 @@
-Passo a passo para instalação do DApp de Permissionamento:
+# DApp de Permissionamento da Rede Blockchain Brasil (RBB)
+
+Passo a passo para instalação do DApp:
 
 1. Instale as dependências (execute na raiz do projeto):
 ```bash
