@@ -3,7 +3,7 @@ DApp de Permissionamento V2 da Rede Blockchain Brasil - RBB
 Esta documentação, descreve as funcionalidades do DApp de Permissionamento V2 para a Rede Blockchain Brasil - RBB, incluindo as telas principais e seus respectivos campos. O sistema é projetado para facilitar o gerenciamento de Contas, Nós, Organizações e Governança.
 
 ## **1. Tela de Contas**
-!(Aspose.Words.10335795-d574-4faa-ab3b-ecdc7c0557b5.001.png)
+![](Aspose.Words.10335795-d574-4faa-ab3b-ecdc7c0557b5.001.png)
 
 O conteúdo gerado por IA pode estar incorreto.](Aspose.Words.10335795-d574-4faa-ab3b-ecdc7c0557b5.001.png)
 ### **Descrição**
@@ -17,9 +17,7 @@ Esta tela exibe todas as contas registradas na rede, mostrando informações com
 - ### Opções para atualizar ou remover uma conta.
 
 ### **Janela Criar Conta**
-![Tela de computador com texto preto sobre fundo branco
-
-O conteúdo gerado por IA pode estar incorreto.](Aspose.Words.10335795-d574-4faa-ab3b-ecdc7c0557b5.002.png)
+![](Aspose.Words.10335795-d574-4faa-ab3b-ecdc7c0557b5.002.png)
 
 **Descrição:**
 Permite adicionar uma nova conta à rede.
@@ -31,9 +29,7 @@ Permite adicionar uma nova conta à rede.
 - **Criar:** Confirma a criação de uma nova conta.
 
 ### **Janela: Atualizar Conta**
-![Tela de computador com texto preto sobre fundo branco
-
-O conteúdo gerado por IA pode estar incorreto.](Aspose.Words.10335795-d574-4faa-ab3b-ecdc7c0557b5.003.png)
+![](Aspose.Words.10335795-d574-4faa-ab3b-ecdc7c0557b5.003.png)
 
 **Descrição:**
 Permite atualizar informações de uma conta existente.
@@ -46,9 +42,7 @@ Permite atualizar informações de uma conta existente.
 - **Atualizar:** Salva as alterações feitas na conta.
 
 ### **Janela: Remover Conta**
-![Tela de computador com texto preto sobre fundo branco
-
-O conteúdo gerado por IA pode estar incorreto.](Aspose.Words.10335795-d574-4faa-ab3b-ecdc7c0557b5.004.png)
+![](Aspose.Words.10335795-d574-4faa-ab3b-ecdc7c0557b5.004.png)
 
 **Descrição:**
 Possibilita a remoção de uma conta da rede.
@@ -60,9 +54,7 @@ Possibilita a remoção de uma conta da rede.
 
 
 ## **2. Tela de Nós**
-![Interface gráfica do usuário, Texto, Aplicativo, Email
-
-O conteúdo gerado por IA pode estar incorreto.](Aspose.Words.10335795-d574-4faa-ab3b-ecdc7c0557b5.005.png)
+![](Aspose.Words.10335795-d574-4faa-ab3b-ecdc7c0557b5.005.png)
 ### **Descrição**
 ### A tela de Nós permite gerenciar os nós da rede, exibindo informações como Nome, Organização, Tipo, Status e opções para editar ou remover nós.
 ### **Elementos Principais**
@@ -73,9 +65,7 @@ O conteúdo gerado por IA pode estar incorreto.](Aspose.Words.10335795-d574-4faa
 - ### **Ações:** Opções para editar ou remover o nó.
 
 ### **Janela: Remover Nó**
-![Interface gráfica do usuário, Aplicativo
-
-O conteúdo gerado por IA pode estar incorreto.](Aspose.Words.10335795-d574-4faa-ab3b-ecdc7c0557b5.006.png)
+![](Aspose.Words.10335795-d574-4faa-ab3b-ecdc7c0557b5.006.png)
 
 **Descrição:**
 Permite a remoção de um nó da rede.
@@ -86,9 +76,7 @@ Permite a remoção de um nó da rede.
 - **Remover:** Confirma a remoção do nó.
 
 ### **Janela: Atualizar Nó**
-![Interface gráfica do usuário, Aplicativo
-
-O conteúdo gerado por IA pode estar incorreto.](Aspose.Words.10335795-d574-4faa-ab3b-ecdc7c0557b5.007.png)
+![](Aspose.Words.10335795-d574-4faa-ab3b-ecdc7c0557b5.007.png)
 
 **Descrição:**
 Permite atualizar informações de um nó existente.
@@ -101,9 +89,7 @@ Permite atualizar informações de um nó existente.
 ### **Botão:**
 - **Atualizar:** Salva as alterações feitas no nó.
 ### **Janela: Criar Nó**
-![Interface gráfica do usuário, Aplicativo
-
-O conteúdo gerado por IA pode estar incorreto.](Aspose.Words.10335795-d574-4faa-ab3b-ecdc7c0557b5.008.png)
+![](Aspose.Words.10335795-d574-4faa-ab3b-ecdc7c0557b5.008.png)
 
 **Descrição:**
 Facilita a criação de um novo nó.
@@ -121,9 +107,7 @@ Facilita a criação de um novo nó.
 
 
 ## **3. Tela Organizações**
-![Interface gráfica do usuário, Aplicativo, Teams
-
-O conteúdo gerado por IA pode estar incorreto.](Aspose.Words.10335795-d574-4faa-ab3b-ecdc7c0557b5.009.png)
+![](Aspose.Words.10335795-d574-4faa-ab3b-ecdc7c0557b5.009.png)
 ### **Descrição**
 ### A tela de Organizações exibe a lista de organizações participantes da rede, indicando se cada uma tem permissão para votar.
 
@@ -137,9 +121,7 @@ O conteúdo gerado por IA pode estar incorreto.](Aspose.Words.10335795-d574-4faa
 
 
 ## **4. Tela de Governança**
-![Tela de computador com texto preto sobre fundo branco
-
-O conteúdo gerado por IA pode estar incorreto.](Aspose.Words.10335795-d574-4faa-ab3b-ecdc7c0557b5.010.png)
+![](Aspose.Words.10335795-d574-4faa-ab3b-ecdc7c0557b5.010.png)
 ### **Descrição**
 ### A tela de Governança permite visualizar e administrar propostas de governança, possibilitando criar, editar, visualizar votos e cancelar propostas.
 
@@ -152,9 +134,7 @@ O conteúdo gerado por IA pode estar incorreto.](Aspose.Words.10335795-d574-4faa
 - **Resultado:** Estado do resultante da votação.
 - **Ações:** Opções para visualizar detalhes, editar ou cancelar uma proposta.
 ### **Janela: Proposta / Votos**
-![Interface gráfica do usuário, Aplicativo
-
-O conteúdo gerado por IA pode estar incorreto.](Aspose.Words.10335795-d574-4faa-ab3b-ecdc7c0557b5.011.png)
+![](Aspose.Words.10335795-d574-4faa-ab3b-ecdc7c0557b5.011.png)
 
 **Descrição:**
 Exibe o status de votos de diferentes organizações para uma proposta específica.
@@ -164,9 +144,7 @@ Exibe o status de votos de diferentes organizações para uma proposta específi
 ### **Botão:**
 - **Cancelar:** Fecha a janela de visualização de votos.
 ### **Janela: Cancelar Proposta**
-![Tela de computador com texto preto sobre fundo branco
-
-O conteúdo gerado por IA pode estar incorreto.](Aspose.Words.10335795-d574-4faa-ab3b-ecdc7c0557b5.012.png)
+![](Aspose.Words.10335795-d574-4faa-ab3b-ecdc7c0557b5.012.png)
 
 **Descrição:**
 Permite cancelar uma proposta existente, especificando o motivo do cancelamento.
@@ -175,9 +153,7 @@ Permite cancelar uma proposta existente, especificando o motivo do cancelamento.
 ### **Botão:**
 - **Cancelar Proposta:** Confirma o cancelamento da proposta.
 ### **Janela: Criar Nova Proposta**
-![Tela de computador com texto preto sobre fundo branco
-
-O conteúdo gerado por IA pode estar incorreto.](Aspose.Words.10335795-d574-4faa-ab3b-ecdc7c0557b5.013.png)
+![](Aspose.Words.10335795-d574-4faa-ab3b-ecdc7c0557b5.013.png)
 
 **Descrição:**
 Facilita a criação de uma nova proposta de governança.
@@ -188,9 +164,7 @@ Facilita a criação de uma nova proposta de governança.
 ### **Botão:**
 - **Criar:** Inicia o processo de criação da nova proposta.
 ### **Janela: Detalhes da Chamada da Proposta**
-![Tela de computador com texto preto sobre fundo branco
-
-O conteúdo gerado por IA pode estar incorreto.](Aspose.Words.10335795-d574-4faa-ab3b-ecdc7c0557b5.014.png)
+![](Aspose.Words.10335795-d574-4faa-ab3b-ecdc7c0557b5.014.png)
 
 **Descrição:**
 Detalha as chamadas execução da proposta.
