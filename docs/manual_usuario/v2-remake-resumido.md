@@ -3,7 +3,7 @@ DApp de Permissionamento V2 da Rede Blockchain Brasil - RBB
 Esta documentação, descreve as funcionalidades do DApp de Permissionamento V2 para a Rede Blockchain Brasil - RBB, incluindo as telas principais e seus respectivos campos. O sistema é projetado para facilitar o gerenciamento de Contas, Nós, Organizações e Governança.
 
 ## **1. Tela de Contas**
-![Interface gráfica do usuário, Aplicativo
+!(Aspose.Words.10335795-d574-4faa-ab3b-ecdc7c0557b5.001.png)
 
 O conteúdo gerado por IA pode estar incorreto.](Aspose.Words.10335795-d574-4faa-ab3b-ecdc7c0557b5.001.png)
 ### **Descrição**
