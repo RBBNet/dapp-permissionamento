@@ -14,9 +14,12 @@ npm run build:contract
 
 3. Configure variáveis de ambiente (.env):
 ```ini
-VITE_INFURA_ID=seu_id_infura
-VITE_CONTRACT_ADDRESS=endereço_do_contrato
-VITE_NETWORK_ID=id_da_rede
+VITE_CHAIN_ID=648629
+VITE_GOVERNANCA_CONTRACT_ADDRESS=endereco_contrato_governanca
+VITE_ORGANIZATION_CONTRACT_ADDRESS=endereco_contrato_organizacao
+VITE_ACCOUNT_CONTRACT_ADDRESS=endereco_contrato_conta
+VITE_NODES_CONTRACT_ADDRESS=endereco_contrato_nos
+VITE_NODE_INGRESS_CONTRACT_ADDRESS=endereco_contrato_ingresso_nos
 ```
 
 4. Inicie o servidor de desenvolvimento:
