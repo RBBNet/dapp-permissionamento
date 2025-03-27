@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
 import Table, { TableColumn } from "@components/Table";
-import { ProposalResult, ProposalStatus, useGovernanceData } from "@/context/governancaData";
+import { ProposalResult, ProposalStatus, useGovernanceData, PAGE_SIZE } from "@/context/governancaData";
 import { Governance } from "@chain/@types";
 
 import { ConvertNameToRoleID, formatTimeDifference } from "@util/StringUtils";
@@ -11,10 +11,13 @@ import { Block, toNumber } from "ethers";
 import AddComponent from "./AddComponent";
 import { Web3Provider } from "@/context/web3Data";
 import ViewComponent from "./ViewComponent";
+import { useOrganizationData } from "@/context/organizationData";
 
+import Pagination from "@/components/Pagination";
 
 export default function GovernancaTable(){
-    const { governanceContract, onUpdate } = useGovernanceData();
+    const { governanceContract, onUpdate, getPage, proposalsCount } = useGovernanceData();
+    const { orgList } = useOrganizationData()
     
     const [ proposalList, setProposalList ] = useState<Governance.ProposalDataStructOutput[]>([])
     const { signer } = useNetwork();
@@ -27,6 +30,25 @@ export default function GovernancaTable(){
 
     const [ currentProposal, setCurrentProposal] = useState<Governance.ProposalDataStructOutput>();
 
+    const [ currentPage, setCurrentPage ] = useState(1)
+
+    useEffect(()=>{
+        
+        if(governanceContract){
+            console.log(proposalsCount)
+            getPage(currentPage).then(proposals => {
+                if(!proposals) return;
+                setProposalList(proposals)
+                if(currentProposal != undefined){
+                    for(let proposal of proposals){
+                        if(proposal.id == currentProposal.id) setCurrentProposal(proposal); break;
+                    }
+                }
+            })
+
+        }
+    }, [currentPage])
+
     useEffect(()=>{
 
         if(signer != undefined){
@@ -38,30 +60,21 @@ export default function GovernancaTable(){
 
         }
 
-        // MOCK 
-        // Implementando a consulta de propostas através do idSeed e ir consultando um por um
-        let fetchProposals = async (): Promise<Governance.ProposalDataStructOutput[]> =>{
-            return new Promise(resolve =>{
-                governanceContract?.getProposals(1, 100).then((proposals) =>{
+   
 
-                    resolve(proposals)
-                   
-                });
-            });
-        }
-        console.log("Atualiando propostas")
-        fetchProposals().then(proposals => {
-            setProposalList(proposals)
-            if(currentProposal != undefined){
-                for(let proposal of proposals){
-                    if(proposal.id == currentProposal.id) setCurrentProposal(proposal); break;
-                    
+        if(governanceContract)
+            getPage(currentPage).then(proposals => {
+                if(!proposals) return;
+                setProposalList(proposals)
+                if(currentProposal != undefined){
+                    for(let proposal of proposals){
+                        if(proposal.id == currentProposal.id) setCurrentProposal(proposal); break;
+                        
+                    }
                 }
-            }
-        })
+            })
 
     }, [governanceContract, operatorData, onUpdate])
-
     
     const ActionsComponent = (data: Governance.ProposalDataStructOutput) =>{
 
@@ -88,8 +101,6 @@ export default function GovernancaTable(){
         )
     }
 
-
-
     const statusConvert = (status: bigint): string | JSX.Element =>{
         let proposalStatus = toNumber(status) as ProposalStatus
         switch(proposalStatus){
@@ -101,7 +112,6 @@ export default function GovernancaTable(){
                 return 'Finalizado'
             case ProposalStatus.Cancelled:
                 return 'Cancelado'
-            case ProposalStatus.Undefined:
             default:
                 return 'Desconhecido'
         }
@@ -120,13 +130,13 @@ export default function GovernancaTable(){
         }
     }
 
+    const orgConvert = (orgId: number) =>{
+        return orgList.find(org => orgId == org.id)?.name
+    }
+
     const calculateRemainingTime = (block: Governance.ProposalDataStructOutput) : string =>{
         if(!lastblock || !penultimateBlock ) return "Indisponível"
         let mediumTimeBlock = 4;// lastblock.timestamp - penultimateBlock.timestamp;
-        
-        // console.log("Tempo médio entre blocos: " + mediumTimeBlock)
-        // console.log(lastblock.timestamp)
-        // console.log(penultimateBlock.timestamp)
 
         let lastBlockToVote = toNumber(block.creationBlock + block.blocksDuration);
         if(lastBlockToVote < lastblock.number){
@@ -155,7 +165,8 @@ export default function GovernancaTable(){
         },
         {
             'name':'Autor',
-            'value':'creator'
+            'value':'proponentOrgId',
+            'call':orgConvert
         },
         {
             'name':'Descrição',
@@ -183,6 +194,7 @@ export default function GovernancaTable(){
             'component':ActionsComponent
         }
     ]
+
     
     return (
         <>
@@ -202,6 +214,8 @@ export default function GovernancaTable(){
     
             }
             <Table columns={columns} data={proposalList}/>
+
+            <Pagination changePage={setCurrentPage} totalPages={Math.ceil(proposalsCount / PAGE_SIZE)}/>
         </>
     )
 }

@@ -1,3 +1,4 @@
+import { formatCNPJ } from "@/util/StringUtils";
 import Table from "../../components/Table";
 import { useOrganizationData } from "../../context/organizationData";
 
@@ -14,6 +15,15 @@ function OrganizationTable(){
         {
             'name':'Nome',
             'value':'name'
+        },
+        {
+            'name':'CNPJ',
+            'value':'cnpj',
+            'call': (data:string) => formatCNPJ(data)
+        },
+        {
+            'name':'Papel',
+            'value':'orgType'
         },
         {
             'name':'Pode votar',

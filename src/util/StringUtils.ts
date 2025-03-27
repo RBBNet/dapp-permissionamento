@@ -47,6 +47,17 @@ export function ConvertNodeType(type: BigNumberish ){
     }
 }
 
+export function formatCNPJ(cnpj: string): string {
+    return cnpj
+        .replace(/\D/g, '') // Remove tudo que não for número
+        .replace(/^(\d{2})(\d)/, '$1.$2')
+        .replace(/^(\d{2})\.(\d{3})(\d)/, '$1.$2.$3')
+        .replace(/\.(\d{3})(\d)/, '.$1/$2')
+        .replace(/(\d{4})(\d)/, '$1-$2')
+        .slice(0, 18); // Limita ao tamanho máximo do CNPJ
+}
+
+
 export function ConvertNameToRoleID(name:string){
     for(let object of Object.keys(ROLE_IDS)){
         if(ROLE_IDS[object] == name){

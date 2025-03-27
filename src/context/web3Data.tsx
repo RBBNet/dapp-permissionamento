@@ -20,7 +20,6 @@ export const Web3Provider: React.FC<Props> = props => {
 
     useEffect(()=>{
         web3Factory().then(provider =>{
-          console.log(provider)
             setWeb3(provider)
         })
     }, [])

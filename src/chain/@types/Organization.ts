@@ -46,18 +46,14 @@ export declare namespace Organization {
   };
 }
 
-export interface OrganizationImplInterface extends Interface {
+export interface OrganizationInterface extends Interface {
   getFunction(
     nameOrSignature:
       | "addOrganization"
-      | "admins"
       | "deleteOrganization"
       | "getOrganization"
       | "getOrganizations"
-      | "idSeed"
       | "isOrganizationActive"
-      | "organizationIds"
-      | "organizations"
       | "updateOrganization"
   ): FunctionFragment;
 
@@ -72,7 +68,6 @@ export interface OrganizationImplInterface extends Interface {
     functionFragment: "addOrganization",
     values: [string, string, BigNumberish, boolean]
   ): string;
-  encodeFunctionData(functionFragment: "admins", values?: undefined): string;
   encodeFunctionData(
     functionFragment: "deleteOrganization",
     values: [BigNumberish]
@@ -85,17 +80,8 @@ export interface OrganizationImplInterface extends Interface {
     functionFragment: "getOrganizations",
     values?: undefined
   ): string;
-  encodeFunctionData(functionFragment: "idSeed", values?: undefined): string;
   encodeFunctionData(
     functionFragment: "isOrganizationActive",
-    values: [BigNumberish]
-  ): string;
-  encodeFunctionData(
-    functionFragment: "organizationIds",
-    values?: undefined
-  ): string;
-  encodeFunctionData(
-    functionFragment: "organizations",
     values: [BigNumberish]
   ): string;
   encodeFunctionData(
@@ -107,7 +93,6 @@ export interface OrganizationImplInterface extends Interface {
     functionFragment: "addOrganization",
     data: BytesLike
   ): Result;
-  decodeFunctionResult(functionFragment: "admins", data: BytesLike): Result;
   decodeFunctionResult(
     functionFragment: "deleteOrganization",
     data: BytesLike
@@ -120,17 +105,8 @@ export interface OrganizationImplInterface extends Interface {
     functionFragment: "getOrganizations",
     data: BytesLike
   ): Result;
-  decodeFunctionResult(functionFragment: "idSeed", data: BytesLike): Result;
   decodeFunctionResult(
     functionFragment: "isOrganizationActive",
-    data: BytesLike
-  ): Result;
-  decodeFunctionResult(
-    functionFragment: "organizationIds",
-    data: BytesLike
-  ): Result;
-  decodeFunctionResult(
-    functionFragment: "organizations",
     data: BytesLike
   ): Result;
   decodeFunctionResult(
@@ -207,11 +183,11 @@ export namespace OrganizationUpdatedEvent {
   export type LogDescription = TypedLogDescription<Event>;
 }
 
-export interface OrganizationImpl extends BaseContract {
-  connect(runner?: ContractRunner | null): OrganizationImpl;
+export interface Organization extends BaseContract {
+  connect(runner?: ContractRunner | null): Organization;
   waitForDeployment(): Promise<this>;
 
-  interface: OrganizationImplInterface;
+  interface: OrganizationInterface;
 
   queryFilter<TCEvent extends TypedContractEvent>(
     event: TCEvent,
@@ -256,8 +232,6 @@ export interface OrganizationImpl extends BaseContract {
     "nonpayable"
   >;
 
-  admins: TypedContractMethod<[], [string], "view">;
-
   deleteOrganization: TypedContractMethod<
     [orgId: BigNumberish],
     [void],
@@ -276,27 +250,9 @@ export interface OrganizationImpl extends BaseContract {
     "view"
   >;
 
-  idSeed: TypedContractMethod<[], [bigint], "view">;
-
   isOrganizationActive: TypedContractMethod<
     [orgId: BigNumberish],
     [boolean],
-    "view"
-  >;
-
-  organizationIds: TypedContractMethod<[], [bigint[]], "view">;
-
-  organizations: TypedContractMethod<
-    [arg0: BigNumberish],
-    [
-      [bigint, string, string, bigint, boolean] & {
-        id: bigint;
-        cnpj: string;
-        name: string;
-        orgType: bigint;
-        canVote: boolean;
-      }
-    ],
     "view"
   >;
 
@@ -324,9 +280,6 @@ export interface OrganizationImpl extends BaseContract {
     "nonpayable"
   >;
   getFunction(
-    nameOrSignature: "admins"
-  ): TypedContractMethod<[], [string], "view">;
-  getFunction(
     nameOrSignature: "deleteOrganization"
   ): TypedContractMethod<[orgId: BigNumberish], [void], "nonpayable">;
   getFunction(
@@ -344,29 +297,8 @@ export interface OrganizationImpl extends BaseContract {
     "view"
   >;
   getFunction(
-    nameOrSignature: "idSeed"
-  ): TypedContractMethod<[], [bigint], "view">;
-  getFunction(
     nameOrSignature: "isOrganizationActive"
   ): TypedContractMethod<[orgId: BigNumberish], [boolean], "view">;
-  getFunction(
-    nameOrSignature: "organizationIds"
-  ): TypedContractMethod<[], [bigint[]], "view">;
-  getFunction(
-    nameOrSignature: "organizations"
-  ): TypedContractMethod<
-    [arg0: BigNumberish],
-    [
-      [bigint, string, string, bigint, boolean] & {
-        id: bigint;
-        cnpj: string;
-        name: string;
-        orgType: bigint;
-        canVote: boolean;
-      }
-    ],
-    "view"
-  >;
   getFunction(
     nameOrSignature: "updateOrganization"
   ): TypedContractMethod<

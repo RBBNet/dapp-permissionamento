@@ -24,7 +24,7 @@ export default function AddComponent({ toggleModal, setToggleModal}: Props){
 
         let callData = contractBuilderRef.current.getValue()
         console.log(callData)
-        governanceContract?.createProposal([callData.address], [callData.calldata], blockInput.current.value, descriptionInput.current.value )
+        governanceContract?.createProposal(callData.addresses, callData.hashes, blockInput.current.value, descriptionInput.current.value )
     }
 
     

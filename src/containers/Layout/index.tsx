@@ -6,7 +6,7 @@ import Sidebar from "../../components/Sidebar";
 
 import { OrganizationDataProvider } from "../../context/organizationData";
 import { AccountDataProvider } from "../../context/accountData";
-import Governanca from "../../components/Pages/Governanca";
+
 function Layout(){
 
   const [currentPage, setCurrentPage] = useState('');

@@ -7,11 +7,12 @@ export default class ContractChainABI{
     abi: ExtendedAbiItem[];
     name: string;
 
-    constructor(address: string, abi: any){
+    constructor(address: string, abi: any, jsonabi: any){
         this.address = address;
         this.abi = abi as ExtendedAbiItem[];
         // this.abi[0].inputs
-        this.name = abi.contractName;
+        console.log("Adicionando contrato "+ jsonabi.contractName)
+        this.name = jsonabi.contractName;
     }
 
     // getMethod(name: string){

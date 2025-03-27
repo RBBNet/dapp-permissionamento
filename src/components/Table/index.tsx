@@ -27,6 +27,15 @@ function Table({ columns, data }: TableProps){
             )
         }
 
+        if(data == undefined || data == null){
+            return (
+                <>
+                    Indefinido
+                </>
+            )
+
+        }
+
         switch(typeof data){    
             case "boolean":
 

@@ -1,0 +1,95 @@
+*{
+    /* --border-color: black; */
+    --border-color: #d6d6d6;
+
+}
+
+.pagination{
+    display: flex;
+    flex-direction: row;
+    justify-content: center;
+}
+
+.page{
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    padding: 10px;
+    margin: 0px solid var(--border-color);
+    min-width: 16px;
+    min-height: 16px;
+    max-width: 16px;
+    max-height: 16px;
+
+    border: 2px solid white;
+
+    transition: all 0.12s ease-in-out;
+
+    cursor: pointer;
+}
+
+.page:not(.selected):hover{
+    background-color: #f0f0f0;;
+}
+
+.page:not(.selected):not(:last-child){
+    border-top: 2px solid var(--border-color);
+    border-bottom: 2px solid var(--border-color);
+    border-radius: 0px solid var(--border-color);
+    border-left: 0px solid var(--border-color) ;
+    border-right: 0px solid var(--border-color) ;
+
+
+    &:has(+ .selected){
+        border-top-right-radius: 10px;
+        border-bottom-right-radius: 10px;
+        border: 2px solid var(--border-color);
+        border-left: 0px solid var(--border-color);
+        
+        &:first-child{
+
+            border-top-left-radius: 10px;
+            border-bottom-left-radius: 10px;
+            border-left: 2px solid var(--border-color);
+        }
+    }
+}
+.page:not(.selected):last-child{
+
+    border-top-right-radius: 10px;
+    border-bottom-right-radius: 10px;
+    border: 2px solid var(--border-color);
+    border-left:0px solid var(--border-color);
+}
+.page:not(.selected):not(.page:has(+ .selected)):first-child{
+    border-top-left-radius: 10px;
+    border-bottom-left-radius: 10px;
+    border: 2px solid var(--border-color);
+    border-right: 0px solid var(--border-color);
+}
+
+.page.selected + .page{
+    border: 2px solid var(--border-color);
+    border-top-left-radius: 10px;
+    border-bottom-left-radius: 10px;
+    border-right: 0px solid var(--border-color);
+    
+    
+    &:last-child{
+        border-right: 2px solid var(--border-color);
+    }
+}
+
+
+
+.page.selected{
+    background-color: #0a73ff;
+    color: white;
+    border: 2px solid #0a73ff;
+    border-radius: 25%;
+    margin-left: 2px;
+    margin-right: 2px;
+
+}
+
+/* .page.selected:has(~) */

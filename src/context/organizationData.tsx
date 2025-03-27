@@ -6,7 +6,13 @@ import { OrganizationImpl as OrganizationContract } from '../chain/@types';
 import { configPromise } from '../util/configLoader';
 import { Organization } from '../chain/@types/OrganizationImpl';
 
-type OrganizationData = { id: number; name:string, canVote:boolean};
+enum OrganizationType {
+  Partner = 0,
+  Associate = 1,
+  Patron = 2
+}
+
+type OrganizationData = { id: number;  cnpj:string; name:string; orgType:OrganizationType, canVote:boolean};
 
 type Props = {
   children: ReactNode;
@@ -101,7 +107,9 @@ export const useOrganizationData = () => {
         .map(organization => ({
           id: Number(organization.id),
           name: organization.name,
-          canVote: organization.canVote
+          cnpj: organization.cnpj,
+          canVote: organization.canVote,
+          orgType: OrganizationType[organization.orgType as unknown as OrganizationType]
         }))
     }, [organizationList]);
 

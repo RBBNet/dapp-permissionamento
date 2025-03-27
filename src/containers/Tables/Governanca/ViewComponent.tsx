@@ -14,6 +14,7 @@ type DecompiledCalldata = {
     parameters: any;
     address: string;
     function: string;
+    failToDecompile?: boolean;
 }
 
 type Props = {
@@ -91,12 +92,12 @@ export default function ViewComponent({proposal, setToggleModal}:Props){
 
     const CallsView = () =>{
         const [calldatasDecompiled, setCalldatasDecompiled] = useState<DecompiledCalldata[]>([]);
-
+        
         const tryToDecompileCalldata = () =>{
             if(proposal == undefined || Web3 == undefined) return;
             // Pega os contratos e suas ABI conhecidos
             let contracts = getContracts();
-            let calldatas = []
+            let calldatas: DecompiledCalldata[] = []
             // Passar por cada contrato e call data
             for(let i = 0 ; i < proposal.targets.length; i++){
                 let calldata = proposal.calldatas[i];
@@ -109,7 +110,10 @@ export default function ViewComponent({proposal, setToggleModal}:Props){
                     }
                 }
 
-                if(!contractOnChain) continue;
+                if(!contractOnChain) {
+                    calldatas.push({parameters: [calldata], address, function:"Desconhecida", failToDecompile:true})
+                    continue
+                }
 
                 let abi = contractOnChain[1].abi;
                 let selector = calldata.slice(0, 10);
@@ -130,6 +134,7 @@ export default function ViewComponent({proposal, setToggleModal}:Props){
                             let decodedParams = Web3.eth.abi.decodeParameters(func.inputs, paramsData);
                             calldatas.push({function:functionSignature, parameters:  decodedParams, address} );
                         } catch (error) {
+                            calldatas.push({parameters: [calldata], address, function:"Falha ao decodificar", failToDecompile:true})
                             console.log("Error decoding params:", error);
                         }
                         break;
@@ -145,7 +150,7 @@ export default function ViewComponent({proposal, setToggleModal}:Props){
         }, [])
 
         
-
+        console.log(calldatasDecompiled.length)
         return (
             <Modal title={"Chamadas"} setState={()=>setToggleCallsView(false)}>
                 <Fill>
@@ -179,6 +184,7 @@ export default function ViewComponent({proposal, setToggleModal}:Props){
                                         </td>
                                         <td>
                                             {
+                                                calldata.failToDecompile ? calldata.parameters :
                                                 Object.keys(calldata.parameters).slice(0, Object.keys(calldata.parameters).length / 2).map(parameter => `${calldata.parameters[parameter].toString()},`)
                                             }
                                         </td>

@@ -1,9 +1,8 @@
-import React, { createContext, useContext, useEffect, useState, useMemo, ReactNode, SetStateAction, Dispatch } from 'react';
+import React, { createContext, useContext, useEffect, useState, useMemo, ReactNode } from 'react';
 import { AccountRulesV2Impl, AccountRulesV2 } from '../chain/@types/AccountRulesV2Impl';
 import { accountRulesV2Factory } from '../chain/factory/AccountRulesV2';
 import { useNetwork } from './network';
 import { configPromise } from '../util/configLoader';
-import { Signer } from 'ethers';
 
 type Props = {
   children: ReactNode
@@ -22,6 +21,9 @@ type ContextType =
 
       accountRulesContract?: AccountRulesV2Impl;
       setAccountRulesContract: React.Dispatch<React.SetStateAction<AccountRulesV2Impl | undefined>>;
+
+      getPage: () => AccountRulesV2.AccountDataStructOutput[]
+      accountsCount: number;
     }
   | undefined;
 
@@ -53,6 +55,7 @@ export const AccountDataProvider: React.FC<Props> = props => {
   const [accountRulesContract, setAccountRulesContract] = useState<AccountRulesV2Impl | undefined>(undefined);
   const [operatorAddress, setOperatorAddress] = useState<string | undefined>(undefined);
   const [onUpdate, setOnUpdate] = useState<number>(0);
+  const [accountsCount, setAccountsCount] = useState(0);
   const value = useMemo(
     () => ({
       onUpdate,
@@ -62,9 +65,10 @@ export const AccountDataProvider: React.FC<Props> = props => {
       accountRulesContract,
       setAccountRulesContract,
       operatorAddress,
-      setOperatorAddress
+      setOperatorAddress,
+      proposalsCount: accountsCount
     }),
-    [onUpdate, setOnUpdate, operatorData, setOperatorData, accountRulesContract, setAccountRulesContract, operatorAddress, setOperatorAddress]
+    [onUpdate, setOnUpdate, operatorData, setOperatorData, accountRulesContract, setAccountRulesContract, operatorAddress, setOperatorAddress, accountsCount]
   );
   const { signer } = useNetwork();
   const config = configPromise;
@@ -84,27 +88,36 @@ export const AccountDataProvider: React.FC<Props> = props => {
           accountRulesV2Factory(config, signer).then(contract => {
             setAccountRulesContract(contract);
 
+            contract.getNumberOfAccounts().then(accounts => {
+              setAccountsCount(Number(accounts))
+            })
+
             contract.removeAllListeners(contract.filters.AccountAdded);
             contract.removeAllListeners(contract.filters.AccountUpdated);
             contract.removeAllListeners(contract.filters.AccountDeleted);
             contract.removeAllListeners(contract.filters.AccountStatusUpdated);
 
-            contract.on(contract.filters.AccountAdded(), (event) => {
+            contract.on(contract.filters.AccountAdded(), (_) => {
               loadAccountData(contract, setOperatorData, address)
               setOnUpdate(value => value + 1)
-
+              contract.getNumberOfAccounts().then(accounts => {
+                setAccountsCount(Number(accounts))
+              })
             });
-            contract.on(contract.filters.AccountUpdated(), (event) => {
-              loadAccountData(contract, setOperatorData, address)
-              setOnUpdate(value => value + 1)
-            });
-            contract.on(contract.filters.AccountStatusUpdated(), (event) => {
+            contract.on(contract.filters.AccountUpdated(), (_) => {
               loadAccountData(contract, setOperatorData, address)
               setOnUpdate(value => value + 1)
             });
-            contract.on(contract.filters.AccountDeleted(), (event) => {
+            contract.on(contract.filters.AccountStatusUpdated(), (_) => {
               loadAccountData(contract, setOperatorData, address)
               setOnUpdate(value => value + 1)
+            });
+            contract.on(contract.filters.AccountDeleted(), (_) => {
+              loadAccountData(contract, setOperatorData, address)
+              setOnUpdate(value => value + 1)
+              contract.getNumberOfAccounts().then(accounts => {
+                setAccountsCount(Number(accounts))
+              })
             });
 
           });
@@ -124,7 +137,7 @@ export const useAccountData = () => {
     throw new Error('useAccountData must be used within an AccountDataProvider.');
   }
 
-  const { operatorData, operatorAddress, setOperatorData, accountRulesContract, onUpdate } = context;
+  const { operatorData, operatorAddress, setOperatorData, accountRulesContract, onUpdate, accountsCount } = context;
 
   useEffect(() => {
     loadAccountData(accountRulesContract, setOperatorData, operatorAddress);
@@ -140,6 +153,7 @@ export const useAccountData = () => {
     dataReady,
     accountRulesContract,
     operatorData,
-    operatorAddress
+    operatorAddress,
+    accountsCount
   };
 };

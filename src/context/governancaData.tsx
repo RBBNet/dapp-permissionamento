@@ -10,11 +10,10 @@ import { Bytes } from 'web3';
 import { Governance } from '../chain/@types';
 
 export enum ProposalStatus{
-    Undefined = 0,
-    Active = 1,
-    Cancelled = 2,
-    Finished = 3,
-    Executed = 4
+    Active = 0,
+    Cancelled = 1,
+    Finished = 2,
+    Executed = 3
 }
 
 export enum ProposalResult{
@@ -23,16 +22,24 @@ export enum ProposalResult{
     Rejected = 2
 }
 
+export enum ProposalVote{
+  NotVoted = 0,
+  Approval = 1,
+  Rejection = 2
+}
+
 type Proposal = {
     id: number;
     creator: string;
     targets: Bytes[];
+    calldatas: string;
     blocksDuration: number;
     description: string;
     creationBlock: number;
     status: ProposalStatus;
     result: ProposalResult;
     organizations: number[];
+    votes: ProposalVote[];
     cancelationReason: string;
 }
 
@@ -43,6 +50,9 @@ type ContextType =
 
       onUpdate: number;
       setOnUpdate: React.Dispatch<React.SetStateAction<number>>;
+
+      getPage: () => Proposal[]
+      proposalsCount: number;
     }
   | undefined;
 
@@ -62,11 +72,12 @@ const loadNodeData = (
 
 export const GovernanceProvider: React.FC<{children:any}> = props => {
   const [governanceContract, setGovernanceContract] = useState<Governance | undefined>(undefined);
-  const [onUpdate, setOnUpdate] = useState<number>(0);
+  const [onUpdate, setOnUpdate] = useState(0);
+  const [proposalsCount, setProposalsCount] = useState(0);
 
   const value = useMemo(
-    () => ({governanceContract, setGovernanceContract, onUpdate, setOnUpdate}),
-    [governanceContract, setGovernanceContract, onUpdate, setOnUpdate]
+    () => ({governanceContract, setGovernanceContract, onUpdate, setOnUpdate, proposalsCount}),
+    [governanceContract, setGovernanceContract, onUpdate, setOnUpdate, proposalsCount]
   );
 
   const { signer } = useNetwork();
@@ -79,9 +90,12 @@ export const GovernanceProvider: React.FC<{children:any}> = props => {
         config.then(config =>{
             governanceFactory(config, signer).then(contract => {
                 setGovernanceContract(contract);
-
+                contract.getNumberOfProposals().then(proposals => {
+                  setProposalsCount(Number(proposals))
+                })
                 contract.on(contract.filters.ProposalCreated(), ()=>{
                   setOnUpdate(value => value + 1)
+                  contract.getNumberOfProposals().then(proposals => setProposalsCount(Number(proposals)))
                 })
                 contract.on(contract.filters.ProposalCanceled(), ()=>{
                   setOnUpdate(value => value + 1)
@@ -107,6 +121,15 @@ export const GovernanceProvider: React.FC<{children:any}> = props => {
   return <DataContext.Provider value={value} {...props} />;
 };
 
+export const PAGE_SIZE = 10;
+
+const getPage = (page: number, governanceContract: Governance | undefined): Promise<Governance.ProposalDataStructOutput[] | undefined>=>{
+
+  if(!governanceContract) return new Promise(resolve => resolve(undefined))
+
+  return new Promise(resolve => governanceContract.getProposals(page, PAGE_SIZE).then(response => resolve(response)).catch(ex => {console.log(ex); resolve(undefined)}))
+}
+
 
 export const useGovernanceData = () => {
   const context = useContext(DataContext);
@@ -114,7 +137,7 @@ export const useGovernanceData = () => {
     throw new Error('useNodeData must be used within a NodeDataProvider.');
   }
 
-  const { governanceContract, setGovernanceContract, onUpdate } = context;
+  const { governanceContract, setGovernanceContract, onUpdate, proposalsCount } = context;
 
   useEffect(() => {
     loadNodeData(governanceContract);
@@ -128,6 +151,8 @@ export const useGovernanceData = () => {
   return {
     dataReady,
     governanceContract,
-    onUpdate
+    onUpdate,
+    getPage: (page:number) => getPage(page, governanceContract),
+    proposalsCount
   };
 };
