@@ -255,7 +255,8 @@ export default function ViewComponent({proposal, setToggleModal}:Props){
         for(let i = 0; i < proposal?.organizations.length; i++)
         {
             if(proposal?.organizations[i] == operatorData?.orgId){
-
+                console.log("retornando i")
+                console.log(proposal?.status)
                 return i
             }
         }
@@ -284,8 +285,8 @@ export default function ViewComponent({proposal, setToggleModal}:Props){
                     <input type="text" readOnly defaultValue={`${proposal?.id}`} />   
                 </div>
                 <div>
-                    <label htmlFor="">Autor</label>
-                    <input type="text" readOnly defaultValue={`${proposal?.creator}`} />
+                    <label htmlFor="">Autor Proponente</label>
+                    <input type="text" readOnly defaultValue={`${ orgList.find(org => org.id === toNumber(proposal?.proponentOrgId))?.name}`} />
                 </div>
                 <Fill>
                     <div>
@@ -315,13 +316,20 @@ export default function ViewComponent({proposal, setToggleModal}:Props){
                     operatorVoted ?
                     <OperatorVoteView/> : ""
                 }
+                
                 {
-                    operatorIsCreator() != undefined && proposal?.status == 1 && operatorData?.roleId == "0x"+ConvertNameToRoleID("GLOBAL_ADMIN_ROLE") ?
-                    <Fill>
-                    <button onClick={()=>setToggleCancelView(true)}>
-                        Cancelar
-                    </button>
-                    </Fill> : ""
+                    operatorIsCreator() != undefined && proposal?.status == 0 && operatorData?.roleId == "0x"+ConvertNameToRoleID("GLOBAL_ADMIN_ROLE") ?
+                    <>
+                        <Fill>
+                            <hr/>
+
+                        </Fill>
+                        <Fill>
+                            <button onClick={()=>setToggleCancelView(true)}>
+                                Cancelar
+                            </button>
+                        </Fill> 
+                    </>: ""
                 }
             </Modal>
             { toggleCancelView ? <CancelView/> : ""}

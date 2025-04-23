@@ -60,8 +60,6 @@ export default function GovernancaTable(){
 
         }
 
-   
-
         if(governanceContract)
             getPage(currentPage).then(proposals => {
                 if(!proposals) return;
@@ -75,6 +73,10 @@ export default function GovernancaTable(){
             })
 
     }, [governanceContract, operatorData, onUpdate])
+
+    const executeProposal = (data: Governance.ProposalDataStructOutput) =>{
+        governanceContract?.executeProposal(data.id)
+    }
     
     const ActionsComponent = (data: Governance.ProposalDataStructOutput) =>{
 
@@ -88,8 +90,8 @@ export default function GovernancaTable(){
 
                 <div style={{display:"flex", flexDirection:"row",gap:"4px", justifyContent:"center"}}>
                     {
-                        toNumber(data.status) == 1 && operatorData?.roleId == "0x"+ConvertNameToRoleID("GLOBAL_ADMIN_ROLE") ?
-                        <img width={"16px"} src="/icons/up-arrow.png" onClick={()=>executepro}/>
+                        toNumber(data.status) == 2 && operatorData?.roleId == "0x"+ConvertNameToRoleID("GLOBAL_ADMIN_ROLE") ?
+                        <img width={"16px"} src="/icons/up-arrow.png" onClick={()=>executeProposal(data)}/>
                         : ""
                     }
                     {/* <img width={"16px"} src="/icons/delete.png" /> */}
@@ -215,7 +217,11 @@ export default function GovernancaTable(){
             }
             <Table columns={columns} data={proposalList}/>
 
-            <Pagination changePage={setCurrentPage} totalPages={Math.ceil(proposalsCount / PAGE_SIZE)}/>
+            {
+                proposalsCount > PAGE_SIZE ?
+                    <Pagination changePage={setCurrentPage} totalPages={Math.ceil(proposalsCount / PAGE_SIZE)}/>
+                : ""
+            }
         </>
     )
 }

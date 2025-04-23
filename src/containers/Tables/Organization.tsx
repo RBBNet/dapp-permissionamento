@@ -7,6 +7,14 @@ import { useOrganizationData } from "../../context/organizationData";
 function OrganizationTable(){
     const { orgList } = useOrganizationData();
 
+    function ConverterParaSimOuNao(canVote:boolean){
+        if(canVote){
+            return "Sim"
+        }else{
+            return "Não"
+        }
+    }
+
     const columns = [
         {
             'name': 'ID',
@@ -28,7 +36,7 @@ function OrganizationTable(){
         {
             'name':'Pode votar',
             'value':'canVote',
-            'call':(data:boolean)=> data ? "Sim" : "Não" 
+            'call': ConverterParaSimOuNao 
         }
     ]
 

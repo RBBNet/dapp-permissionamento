@@ -66,7 +66,7 @@ export const AccountDataProvider: React.FC<Props> = props => {
       setAccountRulesContract,
       operatorAddress,
       setOperatorAddress,
-      proposalsCount: accountsCount
+      accountsCount
     }),
     [onUpdate, setOnUpdate, operatorData, setOperatorData, accountRulesContract, setAccountRulesContract, operatorAddress, setOperatorAddress, accountsCount]
   );
@@ -130,6 +130,15 @@ export const AccountDataProvider: React.FC<Props> = props => {
   return <AccountDataContext.Provider value={value} {...props} />;
 };
 
+export const PAGE_SIZE = 10;
+
+const getPage = (page: number, accountContract: AccountRulesV2Impl | undefined): Promise<AccountRulesV2.AccountDataStructOutput[] | undefined>=>{
+
+  if(!accountContract) return new Promise(resolve => resolve(undefined))
+
+  return new Promise(resolve => accountContract.getAccounts(page, PAGE_SIZE).then(response => resolve(response)).catch(ex => {console.log(ex); resolve(undefined)}))
+}
+
 export const useAccountData = () => {
   const context = useContext(AccountDataContext);
   
@@ -154,6 +163,7 @@ export const useAccountData = () => {
     accountRulesContract,
     operatorData,
     operatorAddress,
-    accountsCount
+    accountsCount,
+    getPage: (page:number) => getPage(page, accountRulesContract),
   };
 };

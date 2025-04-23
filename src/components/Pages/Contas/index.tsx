@@ -1,4 +1,5 @@
-import AccountTable from "../../../containers/Tables/Account";
+
+import AccountTable from "@/containers/Tables/Account";
 import { AccountDataProvider } from "../../../context/accountData";
 import { OrganizationDataProvider } from "../../../context/organizationData";
 import styles from "../page.module.css"

@@ -7,6 +7,7 @@ import { InputsContractParameters } from "./InputsContract";
 
 type Props = {
    ref:any;
+//    callsLength: number;
 }
 type CalldataObject = {
     _id: string;
@@ -25,6 +26,7 @@ export type ContractBuilderType = {
 
 export default function ContractCallBuilder({ ref }:Props) {
     const { Web3 } = useWeb3();
+    const counter = useRef(0)
     const [calldatasObj, setCalldatasObj ] = useState<Record<string, CalldataObject>>({})
     const [currentCalldata, setCurrentCalldata] = useState<CalldataObject | undefined>(undefined);
     const [calldataState, setCalldataState] = useState<JSX.Element | undefined>(undefined)
@@ -35,9 +37,9 @@ export default function ContractCallBuilder({ ref }:Props) {
 
     const addCalldata = () =>{
         let id = crypto.randomUUID()
-        var calldataObject: CalldataObject = { _id: id, name : "Paramêtro não definido " + id.substring(0, 5)};
+        var calldataObject: CalldataObject = { _id: id, name : "Chamada #" + counter.current};
         updatedRef.current = true;
-
+        counter.current += 1
         setCalldatasObj(prevValues => ({
             ...prevValues,
             [id]: calldataObject

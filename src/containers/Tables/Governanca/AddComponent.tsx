@@ -10,7 +10,7 @@ type Props = {
 }
 
 export default function AddComponent({ toggleModal, setToggleModal}: Props){
-    const { governanceContract} = useGovernanceData();
+    const { governanceContract } = useGovernanceData();
 
     const blockInput = useRef<HTMLInputElement | null>(null)
     const descriptionInput = useRef<HTMLTextAreaElement | null>(null)
@@ -23,7 +23,7 @@ export default function AddComponent({ toggleModal, setToggleModal}: Props){
         if(!contractBuilderRef.current || !blockInput.current || !descriptionInput.current) return;
 
         let callData = contractBuilderRef.current.getValue()
-        console.log(callData)
+        // console.log(callData)
         governanceContract?.createProposal(callData.addresses, callData.hashes, blockInput.current.value, descriptionInput.current.value )
     }
 
@@ -46,7 +46,7 @@ export default function AddComponent({ toggleModal, setToggleModal}: Props){
             </Fill>
 
             <Web3Provider>
-                <ContractCallBuilder ref={contractBuilderRef} />
+                <ContractCallBuilder ref={contractBuilderRef}/>
             </Web3Provider>
 
             <Fill>

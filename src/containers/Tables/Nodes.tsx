@@ -6,8 +6,12 @@ import { useNodeData } from "../../context/nodesData";
 import { useOrganizationData } from "../../context/organizationData";
 import { ConvertNameToRoleID, ConvertNodeType, formatOrganization } from "../../util/StringUtils"
 import { Fill, Modal } from "../../components/Modal";
-import { AccountRulesV2 } from "../../chain/@types";
 import { NodeRulesV2 } from "../../chain/@types/NodeRulesV2Impl";
+import { read } from "fs";
+
+type UpdateComponentProps = {
+    readonly: boolean;
+}
 
 function NodesTable(){
     const {  orgList } = useOrganizationData();
@@ -17,6 +21,7 @@ function NodesTable(){
     const [toggleModalAdd, setToggleModalAdd] = useState(false);
     const [toggleModalRemove, setToggleModalRemove] = useState(false);
     const [toggleModalUpdate, setToggleModalUpdate] = useState(false);
+    const [readonlyView, setReadonlyView] = useState(false);
 
     const [node, setNode] = useState<NodeRulesV2.NodeDataStructOutput | null>(null)
 
@@ -87,7 +92,7 @@ function NodesTable(){
     }
 
     const _deleteNode = (enodeHigh:string, enodeLow:string) =>{
-        nodeRulesContract?.deleteNode(enodeHigh, enodeLow)
+        nodeRulesContract?.deleteLocalNode(enodeHigh, enodeLow)
     }
 
     const RemoveComponent = () =>{
@@ -131,7 +136,7 @@ function NodesTable(){
         
     }
 
-    const UpdateComponent = () => {
+    const UpdateComponent = ({readonly} : UpdateComponentProps) => {
         const enodeHighRef = useRef<HTMLInputElement | null>(null);
         const enodeLowRef  = useRef<HTMLInputElement | null>(null);
         const nameRef      = useRef<HTMLInputElement | null>(null);
@@ -149,41 +154,49 @@ function NodesTable(){
                         <label htmlFor="">eNode Low</label>
                         <input ref={enodeLowRef} defaultValue={node?.enodeLow} type="text" readOnly />
                     </Fill>
-                    <Fill>
-                        <label htmlFor="">Nome</label>
-                        <input ref={nameRef} defaultValue={node?.name} type="text" />
-                    </Fill>
-                    <Fill>
-                        <div>
-                            <label htmlFor="tipo">Papel do Nó</label>
-                            <select ref={nodeTypeRef} defaultValue={node?.nodeType.toString()} id="tipo" name="tipo" >
-                                <option value="0">Boot</option>
-                                <option value="1">Validator</option>
-                                <option value="2">Writer</option>
-                                <option value="3">WriterPartner</option>
-                                <option value="4">ObserverBoot</option>
-                                <option value="5">Observer</option>
-                                <option value="6">Other</option>
-                            </select>
-                        </div>
-                    </Fill>
-                    <Fill>
-                        <label htmlFor="status">Status</label>
-                        <select ref={statusRef} defaultValue={node?.active.toString()} id="status" >
-                            <option value="true">Ativo</option>
-                            <option value="false">Inativo</option>
+                        <Fill>
+                            <label htmlFor="">Nome</label>
+                            <input ref={nameRef} defaultValue={node?.name} type="text" readOnly={readonly} />
+                        </Fill>
+                        <Fill>
+                            <div>
+                                <label htmlFor="tipo">Papel do Nó</label>
+                                <select ref={nodeTypeRef} defaultValue={node?.nodeType.toString()} id="tipo" name="tipo" disabled={readonly}>
+                                    <option value="0">Boot</option>
+                                    <option value="1">Validator</option>
+                                    <option value="2">Writer</option>
+                                    <option value="3">WriterPartner</option>
+                                    <option value="4">ObserverBoot</option>
+                                    <option value="5">Observer</option>
+                                    <option value="6">Other</option>
+                                </select>
+                            </div>
+                        </Fill>
+                        <Fill>
+                            <label htmlFor="status">Status</label>
+                            <select ref={statusRef} defaultValue={node?.active.toString()} id="status" disabled={readonly} >
+                                <option value="true">Ativo</option>
+                                <option value="false">Inativo</option>
 
-                        </select>
-                    </Fill>
-                    <Fill>
-                        <button onClick={()=>_updateNode(enodeHighRef.current?.value, 
-                                                         enodeLowRef.current?.value,
-                                                         nodeTypeRef.current?.value,
-                                                         nameRef.current?.value,
-                                                         statusRef.current?.value)}>
-                            Atualizar
-                        </button>
-                    </Fill>
+                            </select>
+                        </Fill>
+                        {
+                            !readonly ? 
+                            <Fill>
+                                <button onClick={()=>_updateNode(enodeHighRef.current?.value, 
+                                                                enodeLowRef.current?.value,
+                                                                nodeTypeRef.current?.value,
+                                                                nameRef.current?.value,
+                                                                statusRef.current?.value)}>
+                                    Atualizar
+                                </button>
+                            </Fill>  
+                            : ""  
+                        }
+
+
+                    
+                    
                     
                 </Modal>
         
@@ -191,21 +204,41 @@ function NodesTable(){
         )
     }
 
+    const updateNode = (data: NodeRulesV2.NodeDataStructOutput | undefined) =>{
+        if(!data) return;
+        setReadonlyView(false)
+
+        setNode(data);
+        setToggleModalUpdate(true)
+    }
+
+    const viewNode = (data: NodeRulesV2.NodeDataStructOutput | undefined) =>{
+        if(!data) return;
+
+        setReadonlyView(true)
+
+        
+        setNode(data);
+        setToggleModalUpdate(true)
+    }
 
     const ActionsComponent = (data:NodeRulesV2.NodeDataStructOutput | undefined) =>{
         if(data == undefined) return;
         return (
             <>
-                { 
-                    data.orgId == operatorData?.orgId 
-                    && operatorData?.roleId == "0x"+ConvertNameToRoleID("GLOBAL_ADMIN_ROLE")
-                ? 
                 <div style={{display:"flex", flexDirection:"row",gap:"4px", justifyContent:"center"}}>
-                    <img width={"16px"} src="/icons/edit.png" onClick={()=> {setNode(data);setToggleModalUpdate(true)}}/>
-                    <img width={"16px"} src="/icons/delete.png" onClick={()=>_deleteNode(data.enodeHigh, data.enodeLow)} />
+                    <img width={"16px"} src="/icons/view.png" onClick={()=>viewNode(data)} />
+                    { 
+                        data.orgId == operatorData?.orgId 
+                        && operatorData?.roleId == "0x"+ConvertNameToRoleID("GLOBAL_ADMIN_ROLE")
+                    ? 
+                    <>
+                        <img width={"16px"} src="/icons/edit.png" onClick={()=> {updateNode(data)}} />
+                        <img width={"16px"} src="/icons/delete.png" onClick={()=>_deleteNode(data.enodeHigh, data.enodeLow)} />
+                    </>
 
+                    : ""}
                 </div>
-                : "―"}
                 
             </>
         )
@@ -247,7 +280,7 @@ function NodesTable(){
         }
 
         {
-            toggleModalUpdate ? <UpdateComponent/> : ""
+            toggleModalUpdate ? <UpdateComponent readonly={readonlyView} /> : ""
         }
                 
         {

@@ -22,4 +22,5 @@ export namespace PathUtil{
     export namespace Configuracoes{
         export const DEFAULT = 'configuracoes';
     }
+    
 }

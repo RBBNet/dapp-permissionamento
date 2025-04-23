@@ -143,7 +143,6 @@ export const useGovernanceData = () => {
     loadNodeData(governanceContract);
   }, [governanceContract, setGovernanceContract]);
 
-
   const dataReady = useMemo(() => {
     return governanceContract !== undefined
   }, [governanceContract, setGovernanceContract]);
