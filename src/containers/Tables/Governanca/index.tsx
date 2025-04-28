@@ -35,7 +35,6 @@ export default function GovernancaTable(){
     useEffect(()=>{
         
         if(governanceContract){
-            console.log(proposalsCount)
             getPage(currentPage).then(proposals => {
                 if(!proposals) return;
                 setProposalList(proposals)
@@ -75,7 +74,9 @@ export default function GovernancaTable(){
     }, [governanceContract, operatorData, onUpdate])
 
     const executeProposal = (data: Governance.ProposalDataStructOutput) =>{
-        governanceContract?.executeProposal(data.id)
+        governanceContract?.executeProposal(data.id).catch(error =>{
+            alert("Falha ao executar proposta. \nError : " + error)
+        })
     }
     
     const ActionsComponent = (data: Governance.ProposalDataStructOutput) =>{

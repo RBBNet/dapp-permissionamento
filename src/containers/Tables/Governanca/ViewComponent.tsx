@@ -149,8 +149,6 @@ export default function ViewComponent({proposal, setToggleModal}:Props){
             tryToDecompileCalldata();
         }, [])
 
-        
-        console.log(calldatasDecompiled.length)
         return (
             <Modal title={"Chamadas"} setState={()=>setToggleCallsView(false)}>
                 <Fill>
@@ -203,7 +201,9 @@ export default function ViewComponent({proposal, setToggleModal}:Props){
     const OperatorVoteView = () =>{
 
         const Vote = (status: boolean) =>{
-            governanceContract?.castVote(proposal?.id, status);
+            governanceContract?.castVote(proposal?.id, status).catch(error =>{
+                alert("Falha ao votar. \nError : " + error)
+            });
         }
 
         return (
@@ -230,7 +230,9 @@ export default function ViewComponent({proposal, setToggleModal}:Props){
         const reasonRef = useRef<any>();
 
         const cancelProposal = () =>{
-            governanceContract?.cancelProposal(proposal?.id, reasonRef.current.value)
+            governanceContract?.cancelProposal(proposal?.id, reasonRef.current.value).catch(error =>{
+                alert("Falha ao cancelar proposta. \nError : "  + error)
+            })
         }
 
         return (
@@ -255,12 +257,9 @@ export default function ViewComponent({proposal, setToggleModal}:Props){
         for(let i = 0; i < proposal?.organizations.length; i++)
         {
             if(proposal?.organizations[i] == operatorData?.orgId){
-                console.log("retornando i")
-                console.log(proposal?.status)
                 return i
             }
         }
-        console.log("Não encontrado")
         return undefined
     }
 

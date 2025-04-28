@@ -3,6 +3,7 @@ import { useRef } from "react";
 import ContractCallBuilder, { ContractBuilderType } from "./ContractCallBuilder";
 import { Web3Provider } from "@/context/web3Data";
 import { useGovernanceData } from "@/context/governancaData";
+import { CutSpaces } from "@/util/StringUtils";
 
 type Props = {
     toggleModal: boolean;
@@ -17,14 +18,26 @@ export default function AddComponent({ toggleModal, setToggleModal}: Props){
 
     const contractBuilderRef = useRef<ContractBuilderType>(null)
 
+    
 
     const createProposal = () =>{
         //let address = contract?.address
+        if(CutSpaces(descriptionInput.current.value) == "" || CutSpaces(descriptionInput.current.value) == " "){
+            alert("Você deve preencher o campo descrição")
+            return;
+        }
+
         if(!contractBuilderRef.current || !blockInput.current || !descriptionInput.current) return;
 
         let callData = contractBuilderRef.current.getValue()
         // console.log(callData)
-        governanceContract?.createProposal(callData.addresses, callData.hashes, blockInput.current.value, descriptionInput.current.value )
+        governanceContract?.createProposal(callData.addresses, callData.hashes, blockInput.current.value, descriptionInput.current.value ).then(()=>{
+            setToggleModal(false)
+        }).catch(error =>{
+            console.log(error['message'])
+            alert("Ocorreu um error durante a transação: " + error['message'] + "\n. Confirá o console para mais detalhes");
+            console.error(error)
+        })
     }
 
     
@@ -41,7 +54,7 @@ export default function AddComponent({ toggleModal, setToggleModal}: Props){
             <Fill>
                 <div>
                     <label htmlFor="blocks">Duração em blocos</label>
-                    <input type="number" ref={blockInput} id="blocks" defaultValue={200} />
+                    <input type="number" ref={blockInput} id="blocks" defaultValue={200} min={1}/>
                 </div>
             </Fill>
 

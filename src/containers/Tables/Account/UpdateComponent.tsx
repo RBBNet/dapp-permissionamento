@@ -19,25 +19,30 @@ export default function UpdateComponent( {updateData, toggleModal, setToggleModa
     const statusRef = useRef<HTMLSelectElement | null>(null);
 
 
-    function _updateAccount(roledID: string, hash: string, status: string){
+    async function _updateAccount(roledID: string, hash: string, status: string){
         if(updateData == undefined) return;
         let statusBoolean = status == 'true';
 
         roledID = "0x" + ConvertNameToRoleID(roledID)
         
-        if(statusBoolean != updateData?.active){
-            accountRulesContract?.updateLocalAccountStatus(updateData?.account, statusBoolean)
-        }
+        try{
+            if(statusBoolean != updateData?.active){
+                await accountRulesContract?.updateLocalAccountStatus(updateData?.account, statusBoolean)
+            }
+            
+            if(roledID != updateData.roleId || hash != updateData.dataHash){
         
-        if(roledID != updateData.roleId || hash != updateData.dataHash){
-
-            accountRulesContract?.updateLocalAccount(updateData?.account, roledID, hash);
+                await accountRulesContract?.updateLocalAccount(updateData?.account, roledID, hash);
+            }
+        }catch(ex){
+            alert("Falha ao atualizar conta. \nError : " + ex)
         }
+        setToggleModal(false)
     }
 
     return (
         <>
-            <Modal title={"Atualizar conta"} state={toggleModal} setState={setToggleModal}>
+            <Modal title={!readonly ? "Atualizar conta" : "Conta"} state={toggleModal} setState={setToggleModal}>
                 <Fill>
                     <label htmlFor="">Endereço</label>
                     <input type="text" defaultValue={updateData?.account} readOnly={readonly} />

@@ -57,6 +57,9 @@ export function formatCNPJ(cnpj: string): string {
         .slice(0, 18); // Limita ao tamanho máximo do CNPJ
 }
 
+export function CutSpaces(name: string){{
+    return name.replace(/^\s+|\s+$/g,"");
+}}
 
 export function ConvertNameToRoleID(name:string){
     for(let object of Object.keys(ROLE_IDS)){

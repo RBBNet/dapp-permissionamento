@@ -12,16 +12,18 @@ import { formatOrganization } from "../../../util/StringUtils";
 import AddComponent from "./AddComponent";
 import UpdateComponent from "./UpdateComponent";
 import Pagination from "@/components/Pagination";
+import DeleteComponent from "./DeleteComponent";
 
 function AccountTable(){
     const { accountRulesContract, operatorData, onUpdate, accountsCount, getPage } = useAccountData();
     const { orgList } = useOrganizationData();
-    console.log(accountsCount)
+
     getPage(1).then(result => console.log(result))
 
     const [toggleModalAdd, setToggleModalAdd] = useState(false);
-    const [toggleModalRemove, setToggleModalRemove] = useState(false);
+    
     const [toggleModalUpdate, setToggleModalUpdate] = useState(false);
+    const [toggleModalRemove, setToggleModalRemove] = useState(false);
 
     const [ currentPage, setCurrentPage ] = useState(1)
 
@@ -36,11 +38,7 @@ function AccountTable(){
             getPage(currentPage).then(accounts => {
                 if(!accounts) return;
                 setAccountList(accounts)
-                // if(currentProposal != undefined){
-                //     for(let proposal of proposals){
-                //         if(proposal.id == currentProposal.id) setCurrentProposal(proposal); break;
-                //     }
-                // }
+                
             })
 
         }
@@ -74,33 +72,11 @@ function AccountTable(){
         setUpdateData(data)
     }
 
-    function _deleteAccount(address: string){
-        accountRulesContract!.deleteLocalAccount(address);
-    }
     
-    const DeleteComponent = () =>{
-        function deleteAccount(){
-            if(!addressRemoveRef.current) return;
-    
-            _deleteAccount(addressRemoveRef.current?.value)
-        }
-        const addressRemoveRef = useRef<HTMLInputElement >(null);
-
-        return (
-            <Modal title={"Remover conta"} state={toggleModalRemove} setState={setToggleModalRemove}>
-
-                <Fill>
-                    <label htmlFor="">Endereço</label>
-                    <input ref={addressRemoveRef} type="text" />
-                </Fill>
-
-                <Fill>
-                    <button  onClick={deleteAccount}>
-                        Remover
-                    </button>
-                </Fill>
-            </Modal>
-        )
+    const deleteAccount = (acc:string) =>{
+        accountRulesContract!.deleteLocalAccount(acc).catch(error =>{
+            alert("Falha ao deletar conta local. Error : \n" + error)
+        })
     }
 
     const ActionsComponent = (data: any) =>{
@@ -115,7 +91,7 @@ function AccountTable(){
                     ? 
                     <>
                         <img width={"16px"} src="/icons/edit.png" onClick={()=>updateAccount(data)} />
-                        <img width={"16px"} src="/icons/delete.png" onClick={()=>_deleteAccount(data.account)} />
+                        <img width={"16px"} src="/icons/delete.png" onClick={()=>deleteAccount(data.account)} />
                         {/* <img width={"16px"} src="/icons/blocked.png" /> */}
                     </>
                     : ""}
@@ -165,7 +141,7 @@ function AccountTable(){
             toggleModalUpdate ? <UpdateComponent readonly={readonlyView} updateData={updateData} toggleModal={toggleModalUpdate} setToggleModal={setToggleModalUpdate}/> : "" 
         }
         {
-            toggleModalRemove ? <DeleteComponent/> : ""
+            toggleModalRemove ? <DeleteComponent toggleModal={toggleModalRemove} setToggleModal={setToggleModalRemove}/> : ""
         }   
         {
             operatorData?.roleId == "0x"+ConvertNameToRoleID("GLOBAL_ADMIN_ROLE") ?

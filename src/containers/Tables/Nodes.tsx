@@ -42,7 +42,9 @@ function NodesTable(){
                 
             nodeRulesContract?.addLocalNode(
                 enodeHighRef?.current.value, enodeLowRef?.current.value, nodeType.current.value, nameRef?.current.value
-            )
+            ).catch(error =>{
+                alert("Falha ao adicionar novo nó local. \nError : " + error)
+            }).then(()=> setToggleModalAdd(false))
         }
 
         return(
@@ -92,7 +94,9 @@ function NodesTable(){
     }
 
     const _deleteNode = (enodeHigh:string, enodeLow:string) =>{
-        nodeRulesContract?.deleteLocalNode(enodeHigh, enodeLow)
+        nodeRulesContract?.deleteLocalNode(enodeHigh, enodeLow).catch(error =>{
+            alert("Falha ao remover nó local. \nError : " + error)
+        }).then(()=>setToggleModalRemove(false))
     }
 
     const RemoveComponent = () =>{
@@ -123,16 +127,21 @@ function NodesTable(){
         )
     }
 
-    const _updateNode = (enodeHigh:string, enodeLow:string, nodeType:string, name:string, status:string) =>{
+    const _updateNode = async (enodeHigh:string, enodeLow:string, nodeType:string, name:string, status:string) =>{
         
-        if(name != node?.name || nodeType != node.nodeType.toString()){
-            nodeRulesContract?.updateLocalNode(enodeHigh, enodeLow, nodeType, name);
+        try{
+            if(name != node?.name || nodeType != node.nodeType.toString()){
+                await nodeRulesContract?.updateLocalNode(enodeHigh, enodeLow, nodeType, name);
+            }
+    
+            if(status != node?.active.toString()){
+    
+                await nodeRulesContract?.updateLocalNodeStatus(enodeHigh, enodeLow, status == 'true');
+            }
+        }catch(ex){
+            alert("Falha ao atualizar nó local. \nError : " + ex)
         }
-
-        if(status != node?.active.toString()){
-
-            nodeRulesContract?.updateLocalNodeStatus(enodeHigh, enodeLow, status == 'true');
-        }
+        setToggleModalUpdate(false)
         
     }
 
@@ -145,7 +154,7 @@ function NodesTable(){
 
         return (
             <>
-                <Modal title={"Atualizar Nó"} setState={setToggleModalUpdate}>
+                <Modal title={!readonly ? "Atualizar Nó" : "Nó"} setState={setToggleModalUpdate}>
                     <Fill>
                         <label htmlFor="">eNode High</label>
                         <input ref={enodeHighRef} defaultValue={node?.enodeHigh} type="text" readOnly />

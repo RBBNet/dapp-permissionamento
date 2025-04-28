@@ -22,7 +22,11 @@ export default function AddComponent({ toggleModal, setToggleModal}: Props){
         let dataHash = ethers.keccak256(ethers.toUtf8Bytes(hashRef.current.value))
 
         accountRulesContract!.addLocalAccount(address, 
-            roleId, dataHash)
+            roleId, dataHash).catch(error =>{
+                alert("Erro ao adicionar conta local. \nError :" + error)
+            }).then(()=>{
+                setToggleModal(false)
+            })
     }
 
     return (

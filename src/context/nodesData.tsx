@@ -75,7 +75,6 @@ export const NodeDataProvider: React.FC<{children:any}> = props => {
               contract.removeAllListeners(contract.filters.NodeStatusUpdated);
 
               contract.on(contract.filters.NodeAdded(), ()=>{
-                console.log("Nó novo adicionado");
                 loadNodeData(contract, setNodeList)
               })
               contract.on(contract.filters.NodeUpdated(), ()=>{

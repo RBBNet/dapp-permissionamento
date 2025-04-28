@@ -183,7 +183,7 @@ export default function ContractCallBuilder({ ref }:Props) {
                                 <>
                                     {
                                         Object.keys(calldatasObj).map((element) => 
-                                            <option value={calldatasObj[element]._id}>{calldatasObj[element].name}</option>
+                                            <option value={calldatasObj[element]._id} key={calldatasObj[element]._id}>{calldatasObj[element].name}</option>
                                         )
                                     }
                                 </>

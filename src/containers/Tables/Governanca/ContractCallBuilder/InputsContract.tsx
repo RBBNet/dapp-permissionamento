@@ -143,11 +143,11 @@ export default function InputsContract({ref, selectedContract, extra}: Props){
                 inputs.length > 0 ?
                     <>
                         {
-                            inputs.map(element =>
-                                <Fill>
+                            inputs.map((element, index) =>
+                                <Fill key={`${index}_div`}>
                                     <div>
-                                        <label htmlFor="">{element.name}</label>
-                                        <input type="text" name={element.name} value={inputsValues[element.name]} onChange={handleInputChange} />
+                                        <label  htmlFor="">{element.name}</label>
+                                        <input type="text"  name={element.name} value={inputsValues[element.name]} onChange={handleInputChange} />
                                     </div>
                                 </Fill>
                             )
