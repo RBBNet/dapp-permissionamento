@@ -3,6 +3,9 @@ import { useAccountData } from "@/context/accountData";
 import { ethers } from "ethers";
 import { useRef } from "react";
 
+import { AccountRules } from "@/chain/ContractsABI";
+import { showErrorMessage } from "@/util/ContractUtils";
+
 type Props = {
     toggleModal: boolean;
     setToggleModal: React.Dispatch<React.SetStateAction<boolean>>;
@@ -23,7 +26,7 @@ export default function AddComponent({ toggleModal, setToggleModal}: Props){
 
         accountRulesContract!.addLocalAccount(address, 
             roleId, dataHash).catch(error =>{
-                alert("Erro ao adicionar conta local. \nError :" + error)
+                showErrorMessage("Erro ao adicionar conta local.",error, AccountRules.abi)
             }).then(()=>{
                 setToggleModal(false)
             })

@@ -2,12 +2,14 @@
 import { useEffect, useRef, useState } from "react";
 import Table from "../../components/Table";
 import { useAccountData } from "../../context/accountData";
-import { useNodeData } from "../../context/nodesData";
+import { PAGE_SIZE,useNodeData } from "../../context/nodesData";
 import { useOrganizationData } from "../../context/organizationData";
 import { ConvertNameToRoleID, ConvertNodeType, formatOrganization } from "../../util/StringUtils"
 import { Fill, Modal } from "../../components/Modal";
 import { NodeRulesV2 } from "../../chain/@types/NodeRulesV2Impl";
-import { read } from "fs";
+ import { Nodes as NodeRulesABI} from "../../chain/ContractsABI"
+import { showErrorMessage } from "@/util/ContractUtils";
+import Pagination from "@/components/Pagination";
 
 type UpdateComponentProps = {
     readonly: boolean;
@@ -16,18 +18,35 @@ type UpdateComponentProps = {
 function NodesTable(){
     const {  orgList } = useOrganizationData();
     const { operatorData } = useAccountData();
-    const { nodeRulesContract, nodeList } = useNodeData();
+    const { nodeRulesContract,  getPage, nodesCount, onUpdate } = useNodeData();
 
     const [toggleModalAdd, setToggleModalAdd] = useState(false);
     const [toggleModalRemove, setToggleModalRemove] = useState(false);
     const [toggleModalUpdate, setToggleModalUpdate] = useState(false);
     const [readonlyView, setReadonlyView] = useState(false);
 
+    const [nodeList, setNodeList] = useState<NodeRulesV2.NodeDataStruct[]>([])
     const [node, setNode] = useState<NodeRulesV2.NodeDataStructOutput | null>(null)
 
-    useEffect(()=>{
+    const [ currentPage, setCurrentPage ] = useState(1)
 
-    }, [nodeRulesContract])
+    useEffect(()=>{     
+        if(nodeRulesContract){
+            getPage(currentPage).then(proposals => {
+                if(!proposals) return;
+                setNodeList(proposals)
+            })
+        }
+    }, [currentPage])
+    // console.log(nodeList)
+    useEffect(()=>{     
+        if(nodeRulesContract){
+            getPage(currentPage).then(proposals => {
+                if(!proposals) return;
+                setNodeList(proposals)
+            })
+        }
+    }, [nodeRulesContract, onUpdate])
 
     const AddComponent = () =>{
         const nameRef = useRef<HTMLInputElement | null>( null);
@@ -43,7 +62,7 @@ function NodesTable(){
             nodeRulesContract?.addLocalNode(
                 enodeHighRef?.current.value, enodeLowRef?.current.value, nodeType.current.value, nameRef?.current.value
             ).catch(error =>{
-                alert("Falha ao adicionar novo nó local. \nError : " + error)
+                showErrorMessage("Falha ao adicionar novo nó local. ", error, NodeRulesABI)
             }).then(()=> setToggleModalAdd(false))
         }
 
@@ -95,7 +114,7 @@ function NodesTable(){
 
     const _deleteNode = (enodeHigh:string, enodeLow:string) =>{
         nodeRulesContract?.deleteLocalNode(enodeHigh, enodeLow).catch(error =>{
-            alert("Falha ao remover nó local. \nError : " + error)
+            showErrorMessage("Falha ao remover nó local.", error, NodeRulesABI)
         }).then(()=>setToggleModalRemove(false))
     }
 
@@ -139,7 +158,7 @@ function NodesTable(){
                 await nodeRulesContract?.updateLocalNodeStatus(enodeHigh, enodeLow, status == 'true');
             }
         }catch(ex){
-            alert("Falha ao atualizar nó local. \nError : " + ex)
+            showErrorMessage("Falha ao atualizar nó local.", ex, NodeRulesABI)
         }
         setToggleModalUpdate(false)
         
@@ -192,11 +211,11 @@ function NodesTable(){
                         {
                             !readonly ? 
                             <Fill>
-                                <button onClick={()=>_updateNode(enodeHighRef.current?.value, 
-                                                                enodeLowRef.current?.value,
-                                                                nodeTypeRef.current?.value,
-                                                                nameRef.current?.value,
-                                                                statusRef.current?.value)}>
+                                <button onClick={()=>_updateNode(enodeHighRef.current!.value, 
+                                                                enodeLowRef.current!.value,
+                                                                nodeTypeRef.current!.value,
+                                                                nameRef.current!.value,
+                                                                statusRef.current!.value)}>
                                     Atualizar
                                 </button>
                             </Fill>  
@@ -306,6 +325,12 @@ function NodesTable(){
 
         }
         <Table columns={columns} data={nodeList}/>
+
+        {
+            nodesCount > PAGE_SIZE ?
+                <Pagination changePage={setCurrentPage} totalPages={Math.ceil(nodesCount / PAGE_SIZE)}/>
+            : ""
+        }
     </>
     )
 }

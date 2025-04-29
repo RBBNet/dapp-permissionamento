@@ -58,17 +58,6 @@ type ContextType =
 
 const DataContext = createContext<ContextType>(undefined);
 
-const loadNodeData = (
-  governanceContract: Governance | undefined,
-//   setGovernanceContract: (account: Governance.NodeDataStructOutput[]) => void
-) => {
-  if (governanceContract === undefined) {
-    // setNodeList([]);
-  } else {
-    // nodeRulesContract.getNodes(1, 100).then(result => setNodeList(result))
-  }
-};
-
 
 export const GovernanceProvider: React.FC<{children:any}> = props => {
   const [governanceContract, setGovernanceContract] = useState<Governance | undefined>(undefined);
@@ -140,7 +129,7 @@ export const useGovernanceData = () => {
   const { governanceContract, setGovernanceContract, onUpdate, proposalsCount } = context;
 
   useEffect(() => {
-    loadNodeData(governanceContract);
+    // loadNodeData(governanceContract);
   }, [governanceContract, setGovernanceContract]);
 
   const dataReady = useMemo(() => {

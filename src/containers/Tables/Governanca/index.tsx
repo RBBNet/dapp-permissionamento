@@ -14,6 +14,8 @@ import ViewComponent from "./ViewComponent";
 import { useOrganizationData } from "@/context/organizationData";
 
 import Pagination from "@/components/Pagination";
+import Governanca from "@/chain/abis/Governance.json";
+import { showErrorMessage } from "@/util/ContractUtils";
 
 export default function GovernancaTable(){
     const { governanceContract, onUpdate, getPage, proposalsCount } = useGovernanceData();
@@ -75,7 +77,7 @@ export default function GovernancaTable(){
 
     const executeProposal = (data: Governance.ProposalDataStructOutput) =>{
         governanceContract?.executeProposal(data.id).catch(error =>{
-            alert("Falha ao executar proposta. \nError : " + error)
+            showErrorMessage("Falha ao executar proposta.", error, Governanca.abi)
         })
     }
     

@@ -18,45 +18,31 @@ enum EnodeType{
   Other
 }
 
-type Enode = {
-  enodeHigh: string;
-  enodeLow : string;
-  nodeType: EnodeType;
-  name : string;
-  orgId: number;
-  active: boolean
-}
-
 type ContextType =
   | {
+      onUpdate: number;
+      setOnUpdate: React.Dispatch<React.SetStateAction<number>>;
+
       nodeList: NodeRulesV2.NodeDataStructOutput[];
       setNodeList: React.Dispatch<React.SetStateAction<NodeRulesV2.NodeDataStructOutput[]>>;
       nodeRulesContract?: NodeRulesV2Impl;
       setNodeRulesContract: React.Dispatch<React.SetStateAction<NodeRulesV2Impl | undefined>>;
+
+      nodesCount: number;
     }
   | undefined;
 
 const DataContext = createContext<ContextType>(undefined);
 
-const loadNodeData = (
-  nodeRulesContract: NodeRulesV2Impl | undefined,
-  setNodeList: (account: NodeRulesV2.NodeDataStructOutput[]) => void
-) => {
-  if (nodeRulesContract === undefined) {
-    setNodeList([]);
-  } else {
-    nodeRulesContract.getNodes(1, 100).then(result => setNodeList(result))
-  }
-};
-
 
 export const NodeDataProvider: React.FC<{children:any}> = props => {
   const [nodeList, setNodeList] = useState<any[]>([]);
   const [nodeRulesContract, setNodeRulesContract] = useState<NodeRulesV2Impl | undefined>(undefined);
-
+  const [nodesCount, setNodesCount] = useState(0);
+  const [onUpdate, setOnUpdate] = useState<number>(0);
   const value = useMemo(
-    () => ({ nodeList, setNodeList,  nodeRulesContract, setNodeRulesContract }),
-    [nodeList, setNodeList, nodeRulesContract, setNodeRulesContract]
+    () => ({ nodeList, setNodeList,  nodeRulesContract, setNodeRulesContract, nodesCount,onUpdate, setOnUpdate  }),
+    [nodeList, setNodeList, nodeRulesContract, setNodeRulesContract, nodesCount]
   );
 
   const { signer } = useNetwork();
@@ -74,19 +60,29 @@ export const NodeDataProvider: React.FC<{children:any}> = props => {
               contract.removeAllListeners(contract.filters.NodeDeleted);
               contract.removeAllListeners(contract.filters.NodeStatusUpdated);
 
+              contract.getNumberOfNodes().then(nodes => {
+                setNodesCount(Number(nodes))
+              })
+
               contract.on(contract.filters.NodeAdded(), ()=>{
-                loadNodeData(contract, setNodeList)
+                setOnUpdate(value => value + 1)
+                contract.getNumberOfNodes().then(nodes => {
+                  setNodesCount(Number(nodes))
+                })
               })
               contract.on(contract.filters.NodeUpdated(), ()=>{
-                loadNodeData(contract, setNodeList)
+                setOnUpdate(value => value + 1)
               })
 
               contract.on(contract.filters.NodeDeleted(), ()=>{
-                loadNodeData(contract, setNodeList)
+                setOnUpdate(value => value + 1)
+                contract.getNumberOfNodes().then(nodes => {
+                  setNodesCount(Number(nodes))
+                })
               })
 
               contract.on(contract.filters.NodeStatusUpdated(), ()=>{
-                loadNodeData(contract, setNodeList)
+                setOnUpdate(value => value + 1)
               })
             });
 
@@ -97,6 +93,14 @@ export const NodeDataProvider: React.FC<{children:any}> = props => {
   return <DataContext.Provider value={value} {...props} />;
 };
 
+export const PAGE_SIZE = 10;
+
+const getPage = (page: number, accountContract: NodeRulesV2Impl | undefined): Promise<NodeRulesV2.NodeDataStruct[] | undefined>=>{
+
+  if(!accountContract) return new Promise(resolve => resolve(undefined))
+
+  return new Promise(resolve => accountContract.getNodes(page, PAGE_SIZE).then(response => resolve(response)).catch(ex => {console.log(ex); resolve(undefined)}))
+}
 
 export const useNodeData = () => {
   const context = useContext(DataContext);
@@ -104,10 +108,10 @@ export const useNodeData = () => {
     throw new Error('useNodeData must be used within a NodeDataProvider.');
   }
 
-  const { nodeList, setNodeList, nodeRulesContract } = context;
+  const { nodeList, setNodeList, nodeRulesContract, nodesCount, onUpdate } = context;
 
   useEffect(() => {
-    loadNodeData(nodeRulesContract, setNodeList);
+    // loadNodeData(nodeRulesContract, setNodeList);
   }, [nodeRulesContract, setNodeList]);
 
 
@@ -117,7 +121,9 @@ export const useNodeData = () => {
 
   return {
     dataReady,
-    nodeList: nodeList,
-    nodeRulesContract
+    nodeRulesContract,
+    nodesCount,
+    onUpdate,
+    getPage: (page: number) => getPage(page, nodeRulesContract,)
   };
 };

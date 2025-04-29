@@ -13,12 +13,14 @@ import AddComponent from "./AddComponent";
 import UpdateComponent from "./UpdateComponent";
 import Pagination from "@/components/Pagination";
 import DeleteComponent from "./DeleteComponent";
+import { AccountRules } from "../../../chain/ContractsABI";
+import { showErrorMessage } from "@/util/ContractUtils";
+
 
 function AccountTable(){
     const { accountRulesContract, operatorData, onUpdate, accountsCount, getPage } = useAccountData();
     const { orgList } = useOrganizationData();
 
-    getPage(1).then(result => console.log(result))
 
     const [toggleModalAdd, setToggleModalAdd] = useState(false);
     
@@ -29,6 +31,8 @@ function AccountTable(){
 
     const [accountList, setAccountList] = useState<AccountRulesV2.AccountDataStructOutput[]>([])
     const [updateData, setUpdateData] = useState<AccountRulesV2.AccountDataStructOutput | undefined>();
+
+    const [toggleModalSetSmart, setToggleModalSetSmart] = useState(false);
 
     const [readonlyView, setReadonlyView] = useState(false)
     
@@ -71,12 +75,59 @@ function AccountTable(){
         setToggleModalUpdate(true)
         setUpdateData(data)
     }
-
     
+
     const deleteAccount = (acc:string) =>{
         accountRulesContract!.deleteLocalAccount(acc).catch(error =>{
-            alert("Falha ao deletar conta local. Error : \n" + error)
+            showErrorMessage("Falha ao deletar conta local.", error, AccountRules.abi)
         })
+    }
+
+    const SetSmartContractSenderAccessComponent = () =>{
+
+        const accountAddressRef = useRef<HTMLInputElement >(null);
+        const contractAddressRef = useRef<HTMLInputElement >(null)
+        const restrictRef = useRef<HTMLInputElement>(null)
+
+        const setAccountTargetAccess = () =>{
+            if(contractAddressRef.current == null || accountAddressRef.current == null || restrictRef.current == null) return;
+            
+            if(restrictRef.current.checked && (contractAddressRef.current.value == "" || contractAddressRef.current.validationMessage == " ") ){
+                alert("Você deve digitar um contrato restringir")
+                return;
+            }
+
+            accountRulesContract?.setAccountTargetAccess
+                (accountAddressRef.current.value, restrictRef.current.checked, restrictRef.current.checked ? [contractAddressRef.current.validationMessage] : [])
+                .then(()=>{
+                    // console.log("")
+                }).catch(error =>{
+                    showErrorMessage("Falha ao restringir contratos.", error, AccountRules.abi)
+                })
+        }
+
+        return (
+            <Modal title={"SetAccountTargetAccess"} setState={setToggleModalSetSmart}>
+                <Fill>
+                    <label htmlFor="">Endereço da contrato</label>
+                    <input type="text" defaultValue={updateData?.account} ref={contractAddressRef}/>
+                </Fill>
+                <Fill>
+                    <label htmlFor="">Endereço da conta</label>
+                    <input type="text" defaultValue={updateData?.account} ref={accountAddressRef}/>
+                </Fill>
+                <div style={{display:"flex", flexDirection:"row"}}>
+                    <input type="checkbox" id="restrict" ref={restrictRef}/>
+                    <label htmlFor="restrict">Restringir?</label>
+                </div>
+
+                <Fill>
+                    <button onClick={setAccountTargetAccess}>
+                        Concluir
+                    </button>
+                </Fill>
+            </Modal>
+        )
     }
 
     const ActionsComponent = (data: any) =>{
@@ -144,6 +195,11 @@ function AccountTable(){
             toggleModalRemove ? <DeleteComponent toggleModal={toggleModalRemove} setToggleModal={setToggleModalRemove}/> : ""
         }   
         {
+                toggleModalSetSmart ?
+                    <SetSmartContractSenderAccessComponent/>
+                :   ""
+        }
+        {
             operatorData?.roleId == "0x"+ConvertNameToRoleID("GLOBAL_ADMIN_ROLE") ?
             <div style={{display:"flex", flexDirection:"row-reverse", gap:"10px"}}>
                 <button style={{padding:'10px'}} onClick={()=>setToggleModalAdd(true)}>
@@ -152,17 +208,21 @@ function AccountTable(){
                 <button style={{padding:'10px'}} onClick={()=>setToggleModalRemove(true)}>
                     Remover
                 </button>
+                <button style={{padding:'10px'}} onClick={()=>setToggleModalSetSmart(true)}>
+                    Restringir contrato
+                </button>
             </div>
             : ""
-
         }
+
+
         <Table columns={columns} data={accountList}/>
 
-           {
-                accountsCount > PAGE_SIZE ?
-                    <Pagination changePage={setCurrentPage} totalPages={Math.ceil(accountsCount / PAGE_SIZE)}/>
-                : ""
-            }
+        {
+            accountsCount > PAGE_SIZE ?
+                <Pagination changePage={setCurrentPage} totalPages={Math.ceil(accountsCount / PAGE_SIZE)}/>
+            : ""
+        }
     </>
     )
 }

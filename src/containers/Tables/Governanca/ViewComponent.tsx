@@ -5,10 +5,11 @@ import { useAccountData } from "@/context/accountData";
 import { useGovernanceData } from "@/context/governancaData";
 import { useOrganizationData } from "@/context/organizationData";
 import { useWeb3 } from "@/context/web3Data";
+import { showErrorMessage } from "@/util/ContractUtils";
 import { ConvertNameToRoleID } from "@/util/StringUtils";
 import { toNumber } from "ethers";
 import { useState, useEffect, useRef } from "react";
-
+import Governanca from "@/chain/abis/Governance.json";
 
 type DecompiledCalldata = {
     parameters: any;
@@ -201,8 +202,8 @@ export default function ViewComponent({proposal, setToggleModal}:Props){
     const OperatorVoteView = () =>{
 
         const Vote = (status: boolean) =>{
-            governanceContract?.castVote(proposal?.id, status).catch(error =>{
-                alert("Falha ao votar. \nError : " + error)
+            governanceContract?.castVote(proposal!.id, status).catch(error =>{
+                showErrorMessage("Falha ao votar.", error, Governanca.abi)
             });
         }
 
@@ -230,8 +231,8 @@ export default function ViewComponent({proposal, setToggleModal}:Props){
         const reasonRef = useRef<any>();
 
         const cancelProposal = () =>{
-            governanceContract?.cancelProposal(proposal?.id, reasonRef.current.value).catch(error =>{
-                alert("Falha ao cancelar proposta. \nError : "  + error)
+            governanceContract?.cancelProposal(proposal!.id, reasonRef.current.value).catch(error =>{
+                showErrorMessage("Falha ao cancelar proposta.", error, Governanca.abi)
             })
         }
 
@@ -284,8 +285,8 @@ export default function ViewComponent({proposal, setToggleModal}:Props){
                     <input type="text" readOnly defaultValue={`${proposal?.id}`} />   
                 </div>
                 <div>
-                    <label htmlFor="">Autor Proponente</label>
-                    <input type="text" readOnly defaultValue={`${ orgList.find(org => org.id === toNumber(proposal?.proponentOrgId))?.name}`} />
+                    <label htmlFor="">Proponente</label>
+                    <input type="text" readOnly defaultValue={`${ orgList.find(org => org.id === toNumber(proposal!.proponentOrgId))?.name}`} />
                 </div>
                 <Fill>
                     <div>
@@ -302,6 +303,20 @@ export default function ViewComponent({proposal, setToggleModal}:Props){
                     <input type="text" readOnly defaultValue={`${proposal?.creationBlock}`} />
                 </div>
                 <Fill>
+                    {
+                        proposal!.status == 1n ?
+                        <>
+                            <div>
+                                <label htmlFor="">Mótivo do cancelamento</label>
+                                <textarea readOnly defaultValue={`${proposal?.cancelationReason}`} >
+
+                                </textarea>
+                            </div>
+                        </> : ""
+                    }
+
+                </Fill>
+                <Fill>
                     <button onClick={()=>setToggleVotesView(true)}>
                         Ver votos
                     </button>
@@ -312,12 +327,12 @@ export default function ViewComponent({proposal, setToggleModal}:Props){
                     </button>
                 </Fill>
                 { 
-                    operatorVoted ?
+                    operatorVoted && proposal!.status == 0n  ?
                     <OperatorVoteView/> : ""
                 }
                 
                 {
-                    operatorIsCreator() != undefined && proposal?.status == 0 && operatorData?.roleId == "0x"+ConvertNameToRoleID("GLOBAL_ADMIN_ROLE") ?
+                    operatorIsCreator() != undefined && proposal!.status == 0n && operatorData?.roleId == "0x"+ConvertNameToRoleID("GLOBAL_ADMIN_ROLE") ?
                     <>
                         <Fill>
                             <hr/>

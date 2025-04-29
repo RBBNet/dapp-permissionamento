@@ -4,6 +4,8 @@ import ContractCallBuilder, { ContractBuilderType } from "./ContractCallBuilder"
 import { Web3Provider } from "@/context/web3Data";
 import { useGovernanceData } from "@/context/governancaData";
 import { CutSpaces } from "@/util/StringUtils";
+import Governanca from "../../../chain/abis/Governance.json"
+import { showErrorMessage } from "@/util/ContractUtils";
 
 type Props = {
     toggleModal: boolean;
@@ -21,6 +23,7 @@ export default function AddComponent({ toggleModal, setToggleModal}: Props){
     
 
     const createProposal = () =>{
+        if(descriptionInput.current == null) return
         //let address = contract?.address
         if(CutSpaces(descriptionInput.current.value) == "" || CutSpaces(descriptionInput.current.value) == " "){
             alert("Você deve preencher o campo descrição")
@@ -34,8 +37,8 @@ export default function AddComponent({ toggleModal, setToggleModal}: Props){
         governanceContract?.createProposal(callData.addresses, callData.hashes, blockInput.current.value, descriptionInput.current.value ).then(()=>{
             setToggleModal(false)
         }).catch(error =>{
-            console.log(error['message'])
-            alert("Ocorreu um error durante a transação: " + error['message'] + "\n. Confirá o console para mais detalhes");
+            console.error(error)
+            showErrorMessage("Falha ao criar proposta",error, Governanca.abi);
             console.error(error)
         })
     }

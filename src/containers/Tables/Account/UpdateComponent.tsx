@@ -3,6 +3,8 @@ import { Modal, Fill } from "@/components/Modal";
 import { useAccountData } from "@/context/accountData";
 import { ConvertNameToRoleID, ConvertRoleID } from "@/util/StringUtils";
 import { useRef } from "react";
+import { AccountRules as AccountRulesABI } from "@/chain/ContractsABI";
+import { showErrorMessage } from "@/util/ContractUtils";
 
 type Props = {
     updateData: AccountRulesV2.AccountDataStructOutput | undefined;
@@ -35,7 +37,7 @@ export default function UpdateComponent( {updateData, toggleModal, setToggleModa
                 await accountRulesContract?.updateLocalAccount(updateData?.account, roledID, hash);
             }
         }catch(ex){
-            alert("Falha ao atualizar conta. \nError : " + ex)
+            showErrorMessage("Falha ao atualizar conta.", ex, AccountRulesABI.abi)
         }
         setToggleModal(false)
     }
